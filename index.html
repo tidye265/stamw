@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Akmark — Watch Without Account</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        /* ===== RESET & BASE ===== */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #080808;
+            --bg-surface: #151515;
+            --bg-secondary: #1C1C1C;
+            --accent: #c71515;
+            --accent-soft: #a00f0f;
+            --white: #FFFFFF;
+            --text-muted: #A7A7A7;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --radius-lg: 20px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            --transition: 0.25s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: var(--bg-primary);
+            color: var(--white);
+            line-height: 1.5;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding-bottom: 72px;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+        button {
+            cursor: pointer;
+            font-family: inherit;
+            border: none;
+            background: none;
+            color: inherit;
+        }
+        input {
+            font-family: inherit;
+            border: none;
+            outline: none;
+            background: none;
+            color: inherit;
+        }
+        img {
+            display: block;
+            max-width: 100%;
+        }
+        ul {
+            list-style: none;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+        }
+
+        /* ===== UTILITY ===== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        .accent-text {
+            color: var(--accent);
+        }
+        .muted-text {
+            color: var(--text-muted);
+        }
+
+        .btn-accent {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--accent);
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 8px 20px;
+            border-radius: 50px;
+            transition: background var(--transition), transform var(--transition);
+            border: none;
+            letter-spacing: 0.2px;
+        }
+        .btn-accent:hover {
+            background: var(--accent-soft);
+            transform: scale(1.02);
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(8, 8, 8, 0.96);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 12px 0;
+        }
+
+        .header .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        .logo img {
+            height: 50px;
+            width: auto;
+            object-fit: contain;
+            background: transparent;
+        }
+
+        .desktop-nav {
+            display: none;
+            align-items: center;
+            gap: 28px;
+        }
+        .desktop-nav a {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: color var(--transition);
+        }
+        .desktop-nav a:hover,
+        .desktop-nav a.active {
+            color: var(--white);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header-actions .btn-accent {
+            font-size: 0.85rem;
+            padding: 6px 16px;
+        }
+
+        /* ===== SUBHEADER (categories) ===== */
+        .subheader {
+            background: #0e0e0e;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-subtle);
+            position: sticky;
+            top: 62px;
+            z-index: 99;
+        }
+        .subheader .container {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .subheader .container::-webkit-scrollbar {
+            display: none;
+        }
+        .category-chip {
+            flex-shrink: 0;
+            padding: 8px 20px;
+            border-radius: 50px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: all var(--transition);
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .category-chip:hover,
+        .category-chip.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        /* ===== MOVIE GRID ===== */
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            padding: 20px 0;
+        }
+
+        .movie-card {
+            background: var(--bg-surface);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: transform var(--transition), box-shadow var(--transition);
+            cursor: pointer;
+            border: 1px solid var(--border-subtle);
+            aspect-ratio: 2/3; /* uniform card size */
+            display: flex;
+            flex-direction: column;
+        }
+        .movie-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+        }
+
+        .movie-card .poster {
+            flex: 1;
+            position: relative;
+            background: var(--bg-secondary);
+            overflow: hidden;
+        }
+        .movie-card .poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+        .movie-card:hover .poster img {
+            transform: scale(1.04);
+        }
+
+        /* Price at top */
+        .movie-card .price-tag {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            color: var(--accent);
+            font-size: 0.8rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 50px;
+            border: 1px solid rgba(199, 21, 21, 0.5);
+            z-index: 2;
+        }
+
+        /* Quality badge */
+        .movie-card .badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 50px;
+            border: 1px solid var(--border-subtle);
+            z-index: 2;
+        }
+
+        /* Title at bottom */
+        .movie-card .info {
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid var(--border-subtle);
+        }
+        .movie-card .info h3 {
+            font-size: 0.92rem;
+            font-weight: 700;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--white);
+            text-transform: uppercase;
+        }
+
+        /* ===== FOOTER ===== */
+        .app-footer {
+            background: #0e0e0e;
+            border-top: 1px solid var(--border-subtle);
+            padding: 30px 16px;
+            margin-top: 40px;
+            text-align: center;
+        }
+        .app-footer .footer-note {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* ===== OTHER SECTIONS (keep existing styles) ===== */
+        .page-section {
+            display: none;
+            animation: fadeUp 0.3s ease;
+            padding: 4px 0 20px;
+        }
+        .page-section.active {
+            display: block;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 20px 0 16px;
+            letter-spacing: -0.3px;
+        }
+        .section-title .accent-text {
+            color: var(--accent);
+        }
+
+        /* Payment modal / player (keep as before but accent red) */
+        .payment-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .payment-overlay.active {
+            display: flex;
+        }
+
+        .payment-modal {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            max-width: 440px;
+            width: 100%;
+            padding: 32px 24px 28px;
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8);
+            animation: slideUp 0.35s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.97);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .payment-modal .close-modal {
+            float: right;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            transition: color var(--transition);
+            padding: 4px;
+            line-height: 1;
+        }
+        .payment-modal .close-modal:hover {
+            color: var(--white);
+        }
+
+        .payment-modal .pm-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            clear: both;
+        }
+        .payment-modal .pm-sub {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+        }
+
+        .payment-modal .pm-movie {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-subtle);
+        }
+        .payment-modal .pm-movie .thumb {
+            width: 48px;
+            height: 64px;
+            border-radius: 6px;
+            background: var(--bg-primary);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .payment-modal .pm-movie .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .payment-modal .pm-movie .info {
+            flex: 1;
+        }
+        .payment-modal .pm-movie .info h4 {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .payment-modal .pm-movie .info p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .payment-modal .pm-movie .info .price {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .payment-modal .pm-methods {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .payment-modal .pm-methods label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+            border: 1.5px solid var(--border-subtle);
+            transition: border var(--transition), background var(--transition);
+            cursor: pointer;
+        }
+        .payment-modal .pm-methods label:hover {
+            border-color: rgba(199, 21, 21, 0.3);
+        }
+        .payment-modal .pm-methods input[type="radio"] {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid var(--text-muted);
+            transition: all var(--transition);
+            flex-shrink: 0;
+            position: relative;
+        }
+        .payment-modal .pm-methods input[type="radio"]:checked {
+            border-color: var(--accent);
+            background: var(--accent);
+        }
+        .payment-modal .pm-methods input[type="radio"]:checked::after {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            border-radius: 50%;
+            background: #000;
+        }
+        .payment-modal .pm-methods label .method-icon {
+            font-size: 1.4rem;
+            color: var(--text-muted);
+        }
+        .payment-modal .pm-methods label .method-name {
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .payment-modal .btn-accent {
+            width: 100%;
+            font-size: 1.05rem;
+            padding: 14px;
+        }
+        .payment-modal .pm-secure {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .payment-modal .pm-secure i {
+            font-size: 0.9rem;
+        }
+
+        /* Payment states */
+        .payment-state {
+            display: none;
+            text-align: center;
+            padding: 12px 0;
+        }
+        .payment-state.active {
+            display: block;
+        }
+
+        .payment-state .state-icon {
+            font-size: 3.5rem;
+            margin-bottom: 12px;
+            display: block;
+        }
+        .payment-state .state-icon.success {
+            color: var(--accent);
+        }
+        .payment-state .state-icon.failed {
+            color: #ff6b6b;
+        }
+        .payment-state .state-icon.pending {
+            color: var(--text-muted);
+            animation: spin 1.5s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .payment-state h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .payment-state p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 16px;
+        }
+
+        /* Player overlay */
+        .player-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: #000;
+            display: none;
+            flex-direction: column;
+        }
+        .player-overlay.active {
+            display: flex;
+        }
+
+        .player-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            position: relative;
+            min-height: 0;
+        }
+
+        .player-placeholder {
+            width: 100%;
+            max-width: 900px;
+            aspect-ratio: 16/9;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            text-align: center;
+            border: 1px solid var(--border-subtle);
+            margin: 16px;
+        }
+        .player-placeholder .big-icon {
+            font-size: 4rem;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+        .player-placeholder h3 {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+        }
+        .player-placeholder p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .player-controls {
+            background: rgba(8, 8, 8, 0.95);
+            backdrop-filter: blur(8px);
+            padding: 12px 16px 16px;
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .player-controls .progress-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .player-controls .progress-track {
+            flex: 1;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+            position: relative;
+            cursor: pointer;
+        }
+        .player-controls .progress-track .fill {
+            height: 100%;
+            width: 37%;
+            background: var(--accent);
+            border-radius: 4px;
+            transition: width 0.2s ease;
+        }
+        .player-controls .progress-track .handle {
+            position: absolute;
+            top: 50%;
+            left: 37%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity var(--transition);
+        }
+        .player-controls .progress-track:hover .handle {
+            opacity: 1;
+        }
+
+        .player-controls .controls-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .player-controls .controls-row .group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .player-controls .controls-row button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            transition: color var(--transition), background var(--transition);
+        }
+        .player-controls .controls-row button:hover {
+            color: var(--white);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .player-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            z-index: 10;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: var(--white);
+            border: 1px solid var(--border-subtle);
+        }
+        .player-close:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Access expired */
+        .access-expired {
+            display: none;
+            text-align: center;
+            padding: 40px 16px;
+        }
+        .access-expired.active {
+            display: block;
+        }
+        .access-expired .icon {
+            font-size: 3rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+        .access-expired h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .access-expired p {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        /* Mobile bottom nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            background: rgba(8, 8, 8, 0.96);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 env(safe-area-inset-bottom, 8px) 0;
+            height: 72px;
+        }
+
+        .bottom-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: color var(--transition);
+            padding: 4px 12px;
+            min-width: 56px;
+        }
+        .bottom-nav a i {
+            font-size: 1.5rem;
+            transition: color var(--transition);
+        }
+        .bottom-nav a:hover,
+        .bottom-nav a.active {
+            color: var(--accent);
+        }
+        .bottom-nav a.active i {
+            color: var(--accent);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 88px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 500;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 12px 20px;
+            box-shadow: var(--shadow);
+            display: none;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            max-width: 90%;
+            animation: slideUp 0.3s ease;
+        }
+        .toast.visible {
+            display: flex;
+        }
+        .toast i {
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px 16px;
+            color: var(--text-muted);
+        }
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            display: block;
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+        .empty-state h4 {
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 4px;
+        }
+
+        /* Detail layout */
+        .movie-detail {
+            display: none;
+            padding: 16px 0 40px;
+            animation: fadeUp 0.35s ease;
+        }
+        .movie-detail.active {
+            display: block;
+        }
+
+        .detail-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 16px;
+            transition: color var(--transition);
+            cursor: pointer;
+        }
+        .detail-back:hover {
+            color: var(--white);
+        }
+
+        .detail-layout {
+            display: grid;
+            gap: 24px;
+        }
+        .detail-poster {
+            aspect-ratio: 2/3;
+            border-radius: var(--radius-lg);
+            background: var(--bg-secondary);
+            overflow: hidden;
+            border: 1px solid var(--border-subtle);
+            max-width: 320px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .detail-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .detail-info h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+        .detail-info .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+        .detail-info .tags span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .detail-info .tags .dot {
+            color: var(--text-muted);
+            opacity: 0.4;
+        }
+
+        .detail-info .description {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 16px;
+            max-width: 600px;
+        }
+
+        .detail-info .detail-price {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+        .detail-info .detail-price small {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        .detail-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .detail-actions .btn-accent {
+            font-size: 1.1rem;
+            padding: 14px 36px;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-surface);
+            border-radius: 50px;
+            padding: 4px 18px 4px 18px;
+            border: 1px solid var(--border-subtle);
+            transition: border var(--transition);
+            margin-bottom: 20px;
+        }
+        .search-bar:focus-within {
+            border-color: var(--accent);
+        }
+        .search-bar i {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+        .search-bar input {
+            flex: 1;
+            padding: 12px 0;
+            font-size: 0.95rem;
+            background: transparent;
+            color: var(--white);
+        }
+        .search-bar input::placeholder {
+            color: var(--text-muted);
+        }
+
+        @media (min-width: 600px) {
+            .movie-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 16px;
+            }
+        }
+
+        @media (min-width: 900px) {
+            .desktop-nav {
+                display: flex;
+            }
+            .bottom-nav {
+                display: none;
+            }
+            body {
+                padding-bottom: 0;
+            }
+            .movie-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .container {
+                padding: 0 32px;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .movie-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+        <div class="container">
+            <div class="logo" id="logoHome">
+                <img src="images/akimark-logo.png" alt="Akmark Logo">
+            </div>
+
+            <nav class="desktop-nav" id="desktopNav">
+                <a href="#" class="active" data-page="home">Home</a>
+                <a href="#" data-page="movies">Movies</a>
+                <a href="#" data-page="series">Series</a>
+                <a href="#" data-page="categories">Categories</a>
+            </nav>
+
+            <div class="header-actions">
+                <a href="login.html" class="btn-accent">Login</a>
+                <a href="register.html" class="btn-accent">Register</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== SUBHEADER (categories) ===== -->
+    <div class="subheader" id="subheader">
+        <div class="container">
+            <button class="category-chip active" data-category="all">All</button>
+            <button class="category-chip" data-category="action">Action</button>
+            <button class="category-chip" data-category="indians-koreans">Indians Koreans</button>
+            <button class="category-chip" data-category="comedy">Comedy</button>
+            <button class="category-chip" data-category="thriller">Thriller</button>
+        </div>
+    </div>
+
+    <!-- ===== SEARCH BAR (HOME) ===== -->
+    <div class="container" id="searchContainer" style="display:none; padding-top:16px;">
+        <div class="search-bar">
+            <i class="bi bi-search"></i>
+            <input type="text" id="searchInput" placeholder="Search movies..." autocomplete="off">
+            <button class="clear-btn" id="clearSearch" style="background:transparent;color:var(--text-muted);font-size:1.1rem;"><i class="bi bi-x-lg"></i></button>
+        </div>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="container">
+
+        <!-- HOME -->
+        <section class="page-section active" id="pageHome">
+            <h2 class="section-title">Featured <span class="accent-text">Movies</span></h2>
+            <div class="movie-grid" id="homeGrid"></div>
+        </section>
+
+        <!-- MOVIES -->
+        <section class="page-section" id="pageMovies">
+            <h2 class="section-title">All <span class="accent-text">Movies</span></h2>
+            <div class="search-bar" style="margin-bottom:16px;">
+                <i class="bi bi-search"></i>
+                <input type="text" id="movieSearchInput" placeholder="Search movies..." autocomplete="off">
+                <button class="clear-btn" id="clearMovieSearch" style="background:transparent;color:var(--text-muted);font-size:1.1rem;"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="movie-grid" id="moviesGrid"></div>
+        </section>
+
+        <!-- SERIES -->
+        <section class="page-section" id="pageSeries">
+            <h2 class="section-title">Series <span class="accent-text">Collection</span></h2>
+            <div class="movie-grid" id="seriesGrid"></div>
+        </section>
+
+        <!-- CATEGORIES -->
+        <section class="page-section" id="pageCategories">
+            <h2 class="section-title">Browse by <span class="accent-text">Category</span></h2>
+            <div class="movie-grid" id="categoriesGrid"></div>
+        </section>
+
+        <!-- MOVIE DETAIL -->
+        <section class="movie-detail" id="movieDetail">
+            <div class="detail-back" id="detailBack">
+                <i class="bi bi-arrow-left"></i> Back
+            </div>
+            <div class="detail-layout">
+                <div class="detail-poster" id="detailPoster">
+                    <img src="" alt="Movie poster" loading="lazy">
+                </div>
+                <div class="detail-info">
+                    <h2 id="detailTitle">Movie Title</h2>
+                    <div class="tags" id="detailTags">
+                        <span>Drama</span>
+                        <span class="dot">•</span>
+                        <span>90 min</span>
+                        <span class="dot">•</span>
+                        <span>HD</span>
+                        <span class="dot">•</span>
+                        <span>2026</span>
+                    </div>
+                    <p class="description" id="detailDesc">A short movie description...</p>
+                    <div class="detail-price" id="detailPrice">MK 1,500 <small>one-time access</small></div>
+                    <div class="detail-actions">
+                        <button class="btn-accent" id="detailWatchBtn">
+                            <i class="bi bi-play-fill"></i> WATCH NOW
+                        </button>
+                        <button class="btn-secondary" id="detailBackBtn">
+                            <i class="bi bi-arrow-left"></i> Back
+                        </button>
+                    </div>
+                    <div style="margin-top:12px;font-size:0.8rem;color:var(--text-muted);">
+                        <i class="bi bi-shield-check"></i> No account needed &bull; Secure payment
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ACCESS EXPIRED -->
+        <div class="access-expired" id="accessExpired">
+            <div class="icon"><i class="bi bi-clock-history"></i></div>
+            <h3>Access Expired</h3>
+            <p>Your viewing access has expired. Please purchase again to continue watching.</p>
+            <button class="btn-accent" id="expiredWatchBtn">
+                <i class="bi bi-arrow-repeat"></i> WATCH AGAIN
+            </button>
+        </div>
+
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="app-footer">
+        <p class="footer-note">Akmark &copy; 2026 — Pay &amp; Watch instantly.</p>
+    </footer>
+
+    <!-- ===== PAYMENT MODAL (hidden) ===== -->
+    <div class="payment-overlay" id="paymentOverlay">
+        <div class="payment-modal" id="paymentModal">
+            <button class="close-modal" id="closePayment"><i class="bi bi-x-lg"></i></button>
+            <div id="paymentFormState">
+                <div class="pm-title">Complete Purchase</div>
+                <div class="pm-sub">One-time payment &bull; watch instantly</div>
+                <div class="pm-movie" id="pmMovie">
+                    <div class="thumb"><img src="" alt="Movie" id="pmThumb"></div>
+                    <div class="info">
+                        <h4 id="pmTitle">Movie Title</h4>
+                        <p id="pmMeta">90 min • HD</p>
+                        <div class="price" id="pmPrice">MK 1,500</div>
+                    </div>
+                </div>
+                <div style="font-size:0.85rem;font-weight:600;margin-bottom:10px;color:var(--text-muted);">
+                    Choose Payment Method
+                </div>
+                <div class="pm-methods" id="pmMethods">
+                    <label>
+                        <input type="radio" name="paymentMethod" value="airtel" checked>
+                        <span class="method-icon"><i class="bi bi-phone"></i></span>
+                        <span class="method-name">Airtel Money</span>
+                        <span style="font-size:0.7rem;color:var(--text-muted);">Mobile</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="paymentMethod" value="tnm">
+                        <span class="method-icon"><i class="bi bi-phone"></i></span>
+                        <span class="method-name">TNM Mpamba</span>
+                        <span style="font-size:0.7rem;color:var(--text-muted);">Mobile</span>
+                    </label>
+                </div>
+                <button class="btn-accent" id="payNowBtn">
+                    <i class="bi bi-credit-card"></i> PAY &amp; WATCH
+                </button>
+                <div class="pm-secure">
+                    <i class="bi bi-lock-fill"></i> Secure payment
+                </div>
+            </div>
+
+            <div class="payment-state" id="paymentPending">
+                <span class="state-icon pending"><i class="bi bi-arrow-repeat"></i></span>
+                <h3>Payment Pending</h3>
+                <p>Waiting for payment confirmation...</p>
+                <button class="btn-secondary" id="checkPaymentStatus">
+                    <i class="bi bi-arrow-repeat"></i> CHECK PAYMENT STATUS
+                </button>
+            </div>
+
+            <div class="payment-state" id="paymentSuccess">
+                <span class="state-icon success"><i class="bi bi-check-circle-fill"></i></span>
+                <h3>Payment Successful</h3>
+                <p>Your payment has been confirmed.</p>
+                <button class="btn-accent" id="continueWatchBtn">
+                    <i class="bi bi-play-fill"></i> CONTINUE WATCHING
+                </button>
+            </div>
+
+            <div class="payment-state" id="paymentFailed">
+                <span class="state-icon failed"><i class="bi bi-x-circle-fill"></i></span>
+                <h3>Payment Failed</h3>
+                <p>We could not confirm your payment. Please try again.</p>
+                <button class="btn-accent" id="retryPaymentBtn">
+                    <i class="bi bi-arrow-repeat"></i> TRY AGAIN
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PLAYER OVERLAY ===== -->
+    <div class="player-overlay" id="playerOverlay">
+        <button class="player-close" id="closePlayer"><i class="bi bi-x-lg"></i></button>
+        <div class="player-container">
+            <div class="player-placeholder">
+                <span class="big-icon"><i class="bi bi-play-circle-fill"></i></span>
+                <h3>Now Playing</h3>
+                <p id="playerMovieTitle">Movie Title</p>
+            </div>
+        </div>
+        <div class="player-controls">
+            <div class="progress-row">
+                <span id="currentTime">0:00</span>
+                <div class="progress-track" id="progressTrack">
+                    <div class="fill" id="progressFill" style="width:37%;"></div>
+                    <div class="handle" id="progressHandle"></div>
+                </div>
+                <span id="totalDuration">2:14</span>
+            </div>
+            <div class="controls-row">
+                <div class="group">
+                    <button id="playPauseBtn"><i class="bi bi-pause-fill"></i></button>
+                    <button id="volumeBtn"><i class="bi bi-volume-up-fill"></i></button>
+                </div>
+                <div class="group">
+                    <button id="fullscreenBtn"><i class="bi bi-fullscreen"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MOBILE BOTTOM NAV ===== -->
+    <nav class="bottom-nav" id="bottomNav">
+        <a href="#" class="active" data-page="home"><i class="bi bi-house-fill"></i>Home</a>
+        <a href="#" data-page="search-mobile" id="mobileSearchBtn"><i class="bi bi-search"></i>Search</a>
+        <a href="#" data-page="movies"><i class="bi bi-film"></i>Movies</a>
+        <a href="#" data-page="categories"><i class="bi bi-grid"></i>Categories</a>
+    </nav>
+
+    <!-- ===== TOAST ===== -->
+    <div class="toast" id="toast">
+        <i class="bi bi-check-circle-fill"></i>
+        <span id="toastMsg">Action completed</span>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ---- MOVIE DATA ----
+            var MOVIES = [
+                { id: 1, title: 'The Last Horizon', genre: 'Sci-Fi', year: 2026, duration: 118, quality: '4K', description: 'A crew of astronauts embarks on a mission to the edge of the galaxy.', price: 1500, poster: 'https://images.unsplash.com/photo-1614726365723-49cfae92782e?w=400&h=600&fit=crop&crop=center&auto=format', category: 'action', featured: true },
+                { id: 2, title: 'Rising Tides', genre: 'Drama', year: 2025, duration: 104, quality: 'HD', description: 'In a small coastal town, a family struggles to keep their fishing business alive.', price: 1200, poster: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=600&fit=crop&crop=center&auto=format', category: 'indians-koreans', featured: true },
+                { id: 3, title: 'Neon Dreams', genre: 'Thriller', year: 2025, duration: 96, quality: 'HD', description: 'A hacker in a dystopian city uncovers a conspiracy.', price: 1300, poster: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&h=600&fit=crop&crop=center&auto=format', category: 'thriller', featured: true },
+                { id: 4, title: 'The Forgotten Path', genre: 'Drama', year: 2024, duration: 112, quality: 'HD', description: 'A retired architect returns to his childhood village.', price: 1100, poster: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400&h=600&fit=crop&crop=center&auto=format', category: 'indians-koreans', featured: false },
+                { id: 5, title: 'Quantum Heist', genre: 'Action', year: 2026, duration: 128, quality: '4K', description: 'A team of elite thieves plans the most ambitious heist in history.', price: 1800, poster: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=400&h=600&fit=crop&crop=center&auto=format', category: 'action', featured: true },
+                { id: 6, title: 'Summer Lights', genre: 'Romance', year: 2025, duration: 98, quality: 'HD', description: 'Two strangers meet at a music festival.', price: 1000, poster: 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400&h=600&fit=crop&crop=center&auto=format', category: 'comedy', featured: false },
+                { id: 7, title: 'Dark Matter', genre: 'Sci-Fi', year: 2024, duration: 135, quality: 'HD', description: 'A physicist discovers a way to manipulate dark matter.', price: 1400, poster: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&h=600&fit=crop&crop=center&auto=format', category: 'action', featured: false },
+                { id: 8, title: 'The Silent Echo', genre: 'Thriller', year: 2025, duration: 106, quality: 'HD', description: 'A journalist investigating a series of disappearances.', price: 1250, poster: 'https://images.unsplash.com/photo-1478720568477-152d9b164e63?w=400&h=600&fit=crop&crop=center&auto=format', category: 'thriller', featured: true },
+                { id: 9, title: 'Laughing Under Rain', genre: 'Comedy', year: 2025, duration: 92, quality: 'HD', description: 'A group of old friends reunites for a weekend getaway.', price: 950, poster: 'https://images.unsplash.com/photo-1517486808906-6ca8b3f8e1c1?w=400&h=600&fit=crop&crop=center&auto=format', category: 'comedy', featured: false },
+                { id: 10, title: 'The Last Stand', genre: 'Action', year: 2026, duration: 122, quality: '4K', description: 'A retired special forces operative is forced back into action.', price: 1600, poster: 'https://images.unsplash.com/photo-1514539079130-25950c84d65d?w=400&h=600&fit=crop&crop=center&auto=format', category: 'action', featured: true },
+                { id: 11, title: 'Midnight Express', genre: 'Thriller', year: 2024, duration: 100, quality: 'HD', description: 'A journalist boards a cross-country train and realizes one passenger is a fugitive.', price: 1150, poster: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=400&h=600&fit=crop&crop=center&auto=format', category: 'thriller', featured: false },
+                { id: 12, title: 'Beyond the Stars', genre: 'Sci-Fi', year: 2025, duration: 145, quality: '4K', description: 'A team of explorers travels through a wormhole to a parallel universe.', price: 2000, poster: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=400&h=600&fit=crop&crop=center&auto=format', category: 'action', featured: true },
+                { id: 13, title: 'The Garden of Words', genre: 'Romance', year: 2024, duration: 88, quality: 'HD', description: 'A landscape architect and a mysterious woman meet every day in a garden.', price: 900, poster: 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc93?w=400&h=600&fit=crop&crop=center&auto=format', category: 'indians-koreans', featured: false },
+                { id: 14, title: 'Crimson Tide', genre: 'Action', year: 2025, duration: 116, quality: 'HD', description: 'A naval officer must prevent a nuclear submarine from launching a missile.', price: 1350, poster: 'https://images.unsplash.com/photo-1517976487492-5750f3195933?w=400&h=600&fit=crop&crop=center&auto=format', category: 'action', featured: false },
+                { id: 15, title: 'Funny Bones', genre: 'Comedy', year: 2026, duration: 96, quality: 'HD', description: 'A struggling comedian inherits a run-down theater.', price: 1000, poster: 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=400&h=600&fit=crop&crop=center&auto=format', category: 'comedy', featured: true },
+                { id: 16, title: 'Echoes of Tomorrow', genre: 'Sci-Fi', year: 2026, duration: 130, quality: '4K', description: 'A time-traveling historian tries to prevent a catastrophic event.', price: 2100, poster: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=600&fit=crop&crop=center&auto=format', category: 'action', featured: true }
+            ];
+
+            var SERIES = [
+                { id: 101, title: 'The Wire', genre: 'Drama', year: 2024, duration: 60, quality: 'HD', description: 'A gripping series about the lives of police officers.', price: 2500, poster: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=600&fit=crop&crop=center&auto=format', category: 'indians-koreans', featured: true },
+                { id: 102, title: 'Space Frontier', genre: 'Sci-Fi', year: 2025, duration: 55, quality: '4K', description: 'In the year 2150, humanity has colonized the solar system.', price: 2800, poster: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=400&h=600&fit=crop&crop=center&auto=format', category: 'action', featured: true },
+                { id: 103, title: 'City of Shadows', genre: 'Thriller', year: 2024, duration: 58, quality: 'HD', description: 'A detective in a corrupt city uncovers a conspiracy.', price: 2200, poster: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&h=600&fit=crop&crop=center&auto=format', category: 'thriller', featured: false },
+                { id: 104, title: 'Laugh Track', genre: 'Comedy', year: 2025, duration: 30, quality: 'HD', description: 'A behind-the-scenes look at a late-night comedy show.', price: 1800, poster: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=600&fit=crop&crop=center&auto=format', category: 'comedy', featured: false },
+                { id: 105, title: 'Love in the City', genre: 'Romance', year: 2024, duration: 45, quality: 'HD', description: 'A romantic anthology series following different couples.', price: 1900, poster: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400&h=600&fit=crop&crop=center&auto=format', category: 'indians-koreans', featured: false }
+            ];
+
+            var currentMovie = null;
+            var currentPage = 'home';
+            var paymentState = 'form';
+            var playbackInterval = null;
+            var playbackProgress = 37;
+            var selectedMovieId = null;
+            var accessExpired = false;
+
+            function $(sel) { return document.querySelector(sel); }
+            function $$(sel) { return document.querySelectorAll(sel); }
+
+            var homeGrid = $('#homeGrid');
+            var moviesGrid = $('#moviesGrid');
+            var seriesGrid = $('#seriesGrid');
+            var categoriesGrid = $('#categoriesGrid');
+            var movieDetail = $('#movieDetail');
+            var accessExpiredEl = $('#accessExpired');
+            var detailBack = $('#detailBack');
+            var detailBackBtn = $('#detailBackBtn');
+            var detailPoster = $('#detailPoster').querySelector('img');
+            var detailTitle = $('#detailTitle');
+            var detailTags = $('#detailTags');
+            var detailDesc = $('#detailDesc');
+            var detailPrice = $('#detailPrice');
+            var detailWatchBtn = $('#detailWatchBtn');
+            var expiredWatchBtn = $('#expiredWatchBtn');
+
+            var paymentOverlay = $('#paymentOverlay');
+            var paymentModal = $('#paymentModal');
+            var closePayment = $('#closePayment');
+            var pmThumb = $('#pmThumb');
+            var pmTitle = $('#pmTitle');
+            var pmMeta = $('#pmMeta');
+            var pmPrice = $('#pmPrice');
+            var payNowBtn = $('#payNowBtn');
+            var paymentFormState = $('#paymentFormState');
+            var paymentPending = $('#paymentPending');
+            var paymentSuccess = $('#paymentSuccess');
+            var paymentFailed = $('#paymentFailed');
+            var checkPaymentStatusBtn = $('#checkPaymentStatus');
+            var continueWatchBtn = $('#continueWatchBtn');
+            var retryPaymentBtn = $('#retryPaymentBtn');
+
+            var playerOverlay = $('#playerOverlay');
+            var closePlayer = $('#closePlayer');
+            var playerMovieTitle = $('#playerMovieTitle');
+            var playPauseBtn = $('#playPauseBtn');
+            var volumeBtn = $('#volumeBtn');
+            var fullscreenBtn = $('#fullscreenBtn');
+            var progressFill = $('#progressFill');
+            var progressTrack = $('#progressTrack');
+            var currentTimeEl = $('#currentTime');
+            var totalDurationEl = $('#totalDuration');
+
+            var searchInput = $('#searchInput');
+            var movieSearchInput = $('#movieSearchInput');
+            var clearSearch = $('#clearSearch');
+            var clearMovieSearch = $('#clearMovieSearch');
+            var searchContainer = $('#searchContainer');
+            var logoHome = $('#logoHome');
+            var toast = $('#toast');
+            var toastMsg = $('#toastMsg');
+
+            var desktopNav = $$('#desktopNav a');
+            var bottomNav = $$('#bottomNav a');
+            var pageSections = {
+                home: $('#pageHome'),
+                movies: $('#pageMovies'),
+                series: $('#pageSeries'),
+                categories: $('#pageCategories'),
+            };
+            var subheaderChips = $$('#subheader .category-chip');
+
+            function formatDuration(min) {
+                var h = Math.floor(min / 60);
+                var m = min % 60;
+                return h > 0 ? h + 'h ' + m + 'm' : m + 'm';
+            }
+
+            function formatPrice(price) {
+                return 'MK ' + price.toLocaleString();
+            }
+
+            function showToast(msg, icon) {
+                icon = icon || 'bi-check-circle-fill';
+                toastMsg.textContent = msg;
+                toast.querySelector('i').className = icon;
+                toast.classList.add('visible');
+                clearTimeout(toast._hide);
+                toast._hide = setTimeout(function() {
+                    toast.classList.remove('visible');
+                }, 3000);
+            }
+
+            function getMovieById(id) {
+                var movie = MOVIES.find(function(m) { return m.id === id; });
+                if (movie) return movie;
+                return SERIES.find(function(s) { return s.id === id; });
+            }
+
+            function movieCardHTML(movie, isSeries) {
+                isSeries = isSeries || false;
+                return '<div class="movie-card" data-id="' + movie.id + '">' +
+                    '<div class="poster">' +
+                    '<img src="' + movie.poster + '" alt="' + movie.title + '" loading="lazy">' +
+                    '<span class="price-tag">' + formatPrice(movie.price) + '</span>' +
+                    '<span class="badge">' + movie.quality + '</span>' +
+                    '</div>' +
+                    '<div class="info">' +
+                    '<h3>' + movie.title + '</h3>' +
+                    '</div>' +
+                    '</div>';
+            }
+
+            function renderGrid(container, items) {
+                if (!items || items.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><i class="bi bi-film"></i><h4>No movies found</h4><p>Try adjusting your search or filter.</p></div>';
+                    return;
+                }
+                var html = '';
+                for (var i = 0; i < items.length; i++) {
+                    html += movieCardHTML(items[i]);
+                }
+                container.innerHTML = html;
+            }
+
+            function filterByCategory(items, category) {
+                if (category === 'all') return items;
+                return items.filter(function(m) { return m.category === category; });
+            }
+
+            function filterBySearch(items, query) {
+                if (!query.trim()) return items;
+                var q = query.toLowerCase().trim();
+                return items.filter(function(m) { return m.title.toLowerCase().includes(q) || m.genre.toLowerCase().includes(q); });
+            }
+
+            function navigateTo(page) {
+                for (var key in pageSections) {
+                    if (pageSections.hasOwnProperty(key)) pageSections[key].classList.remove('active');
+                }
+                movieDetail.classList.remove('active');
+                accessExpiredEl.classList.remove('active');
+
+                if (page === 'detail') {
+                    movieDetail.classList.add('active');
+                    if (accessExpired) accessExpiredEl.classList.add('active');
+                    return;
+                }
+
+                if (pageSections[page]) pageSections[page].classList.add('active');
+                currentPage = page;
+                desktopNav.forEach(function(a) { a.classList.toggle('active', a.dataset.page === page); });
+                bottomNav.forEach(function(a) { a.classList.toggle('active', a.dataset.page === page); });
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            function showMovieDetail(movieId) {
+                var movie = getMovieById(movieId);
+                if (!movie) return;
+                currentMovie = movie;
+                selectedMovieId = movieId;
+
+                var expires = sessionStorage.getItem('akmark_access_expires_' + movieId);
+                var paid = sessionStorage.getItem('akmark_paid_' + movieId);
+                accessExpired = (paid && expires && Date.now() > Number(expires));
+
+                detailPoster.src = movie.poster;
+                detailTitle.textContent = movie.title;
+                var cat = movie.genre || movie.category;
+                detailTags.innerHTML = '<span>' + cat + '</span><span class="dot">•</span><span>' + formatDuration(movie.duration) + '</span><span class="dot">•</span><span>' + movie.quality + '</span><span class="dot">•</span><span>' + movie.year + '</span>';
+                detailDesc.textContent = movie.description;
+                detailPrice.innerHTML = formatPrice(movie.price) + ' <small>one-time access</small>';
+                navigateTo('detail');
+                if (accessExpired) accessExpiredEl.classList.add('active');
+                else accessExpiredEl.classList.remove('active');
+            }
+
+            function openPayment(movie) {
+                if (!movie) return;
+                currentMovie = movie;
+                selectedMovieId = movie.id;
+                pmThumb.src = movie.poster;
+                pmTitle.textContent = movie.title;
+                pmMeta.textContent = formatDuration(movie.duration) + ' • ' + movie.quality;
+                pmPrice.textContent = formatPrice(movie.price);
+                paymentFormState.style.display = 'block';
+                paymentPending.classList.remove('active');
+                paymentSuccess.classList.remove('active');
+                paymentFailed.classList.remove('active');
+                paymentOverlay.classList.add('active');
+            }
+
+            function closePaymentModal() { paymentOverlay.classList.remove('active'); }
+
+            function simulatePayment() {
+                paymentFormState.style.display = 'none';
+                paymentPending.classList.add('active');
+                setTimeout(function() {
+                    var success = Math.random() < 0.85;
+                    paymentPending.classList.remove('active');
+                    if (success) {
+                        paymentSuccess.classList.add('active');
+                        sessionStorage.setItem('akmark_paid_' + selectedMovieId, 'true');
+                        sessionStorage.setItem('akmark_access_expires_' + selectedMovieId, String(Date.now() + 2.5 * 60 * 60 * 1000));
+                        showToast('Payment confirmed! Starting your movie...');
+                    } else {
+                        paymentFailed.classList.add('active');
+                        showToast('Payment failed. Please try again.', 'bi-x-circle-fill');
+                    }
+                }, 2000);
+            }
+
+            function startPlayback() {
+                closePaymentModal();
+                if (!currentMovie) return;
+                var expires = sessionStorage.getItem('akmark_access_expires_' + currentMovie.id);
+                if (expires && Date.now() > Number(expires)) {
+                    accessExpired = true;
+                    if (movieDetail.classList.contains('active')) accessExpiredEl.classList.add('active');
+                    showToast('Access expired. Please purchase again.', 'bi-clock-history');
+                    return;
+                }
+                playerMovieTitle.textContent = currentMovie.title;
+                playerOverlay.classList.add('active');
+                simulatePlayback();
+            }
+
+            function simulatePlayback() {
+                clearInterval(playbackInterval);
+                playbackProgress = 37;
+                progressFill.style.width = playbackProgress + '%';
+                currentTimeEl.textContent = '0:49';
+                playbackInterval = setInterval(function() {
+                    playbackProgress += 0.15;
+                    if (playbackProgress >= 100) {
+                        playbackProgress = 100;
+                        clearInterval(playbackInterval);
+                        playbackInterval = null;
+                        showToast('Movie ended. Access expired.', 'bi-clock-history');
+                        if (currentMovie) sessionStorage.setItem('akmark_access_expires_' + currentMovie.id, String(Date.now() - 1000));
+                        setTimeout(function() { closePlayer.click(); }, 2000);
+                        return;
+                    }
+                    progressFill.style.width = playbackProgress + '%';
+                    var totalSec = (currentMovie ? currentMovie.duration : 120) * 60;
+                    var currentSec = (playbackProgress / 100) * totalSec;
+                    var min = Math.floor(currentSec / 60);
+                    var sec = Math.floor(currentSec % 60);
+                    currentTimeEl.textContent = min + ':' + (sec < 10 ? '0' : '') + sec;
+                }, 300);
+            }
+
+            function closePlayer() {
+                clearInterval(playbackInterval);
+                playbackInterval = null;
+                playerOverlay.classList.remove('active');
+            }
+
+            function renderAll() {
+                var featured = MOVIES.filter(function(m) { return m.featured; });
+                renderGrid(homeGrid, featured.length ? featured : MOVIES.slice(0, 6));
+                renderGrid(moviesGrid, MOVIES);
+                renderGrid(seriesGrid, SERIES);
+                renderGrid(categoriesGrid, MOVIES);
+            }
+
+            function init() {
+                renderAll();
+
+                desktopNav.forEach(function(a) {
+                    a.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        navigateTo(this.dataset.page);
+                    });
+                });
+
+                bottomNav.forEach(function(a) {
+                    a.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        var page = this.dataset.page;
+                        if (page === 'search-mobile') { toggleSearchContainer(); return; }
+                        navigateTo(page);
+                    });
+                });
+
+                logoHome.addEventListener('click', function() { navigateTo('home'); });
+
+                document.querySelectorAll('.movie-grid').forEach(function(grid) {
+                    grid.addEventListener('click', function(e) {
+                        var card = e.target.closest('.movie-card');
+                        if (!card) return;
+                        var id = parseInt(card.dataset.id);
+                        if (id) showMovieDetail(id);
+                    });
+                });
+
+                detailBack.addEventListener('click', function() { navigateTo(currentPage === 'detail' ? 'home' : currentPage); });
+                detailBackBtn.addEventListener('click', function() { navigateTo(currentPage === 'detail' ? 'home' : currentPage); });
+
+                detailWatchBtn.addEventListener('click', function() {
+                    if (!currentMovie) return;
+                    var paid = sessionStorage.getItem('akmark_paid_' + currentMovie.id);
+                    var expires = sessionStorage.getItem('akmark_access_expires_' + currentMovie.id);
+                    if (paid && expires && Date.now() < Number(expires)) { startPlayback(); return; }
+                    if (paid && expires && Date.now() > Number(expires)) { accessExpired = true; accessExpiredEl.classList.add('active'); showToast('Access expired. Please purchase again.', 'bi-clock-history'); return; }
+                    openPayment(currentMovie);
+                });
+
+                expiredWatchBtn.addEventListener('click', function() { if (!currentMovie) return; openPayment(currentMovie); });
+
+                payNowBtn.addEventListener('click', simulatePayment);
+                checkPaymentStatusBtn.addEventListener('click', function() {
+                    showToast('Checking payment status...', 'bi-hourglass-split');
+                    setTimeout(function() {
+                        var resolved = Math.random() < 0.6;
+                        if (resolved) {
+                            paymentPending.classList.remove('active');
+                            paymentSuccess.classList.add('active');
+                            sessionStorage.setItem('akmark_paid_' + selectedMovieId, 'true');
+                            sessionStorage.setItem('akmark_access_expires_' + selectedMovieId, String(Date.now() + 2.5 * 60 * 60 * 1000));
+                            showToast('Payment confirmed!');
+                        } else {
+                            showToast('Still waiting...', 'bi-hourglass-split');
+                        }
+                    }, 1500);
+                });
+
+                continueWatchBtn.addEventListener('click', startPlayback);
+                retryPaymentBtn.addEventListener('click', function() {
+                    paymentFailed.classList.remove('active');
+                    paymentFormState.style.display = 'block';
+                });
+
+                closePayment.addEventListener('click', closePaymentModal);
+                paymentOverlay.addEventListener('click', function(e) { if (e.target === this) closePaymentModal(); });
+                closePlayer.addEventListener('click', closePlayer);
+
+                playPauseBtn.addEventListener('click', function() {
+                    var icon = this.querySelector('i');
+                    if (icon.classList.contains('bi-pause-fill')) {
+                        icon.className = 'bi-play-fill';
+                        clearInterval(playbackInterval); playbackInterval = null;
+                    } else {
+                        icon.className = 'bi-pause-fill';
+                        simulatePlayback();
+                    }
+                });
+
+                volumeBtn.addEventListener('click', function() {
+                    var icon = this.querySelector('i');
+                    icon.className = icon.classList.contains('bi-volume-up-fill') ? 'bi-volume-mute-fill' : 'bi-volume-up-fill';
+                });
+
+                fullscreenBtn.addEventListener('click', function() {
+                    if (!document.fullscreenElement) {
+                        if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+                    } else {
+                        if (document.exitFullscreen) document.exitFullscreen();
+                    }
+                });
+
+                progressTrack.addEventListener('click', function(e) {
+                    var rect = this.getBoundingClientRect();
+                    var pct = (e.clientX - rect.left) / rect.width;
+                    playbackProgress = Math.min(100, Math.max(0, pct * 100));
+                    progressFill.style.width = playbackProgress + '%';
+                });
+
+                searchInput.addEventListener('input', function() {
+                    renderGrid(homeGrid, filterBySearch(MOVIES, this.value));
+                });
+                clearSearch.addEventListener('click', function() {
+                    searchInput.value = '';
+                    var featured = MOVIES.filter(function(m) { return m.featured; });
+                    renderGrid(homeGrid, featured.length ? featured : MOVIES.slice(0, 6));
+                });
+
+                movieSearchInput.addEventListener('input', function() {
+                    renderGrid(moviesGrid, filterBySearch(MOVIES, this.value));
+                });
+                clearMovieSearch.addEventListener('click', function() {
+                    movieSearchInput.value = '';
+                    renderGrid(moviesGrid, MOVIES);
+                });
+
+                subheaderChips.forEach(function(chip) {
+                    chip.addEventListener('click', function() {
+                        subheaderChips.forEach(function(c) { c.classList.remove('active'); });
+                        this.classList.add('active');
+                        var cat = this.dataset.category;
+                        var filtered = filterByCategory(MOVIES, cat);
+                        renderGrid(homeGrid, filtered.length ? filtered : MOVIES.slice(0, 6));
+                        renderGrid(categoriesGrid, filtered);
+                    });
+                });
+
+                function toggleSearchContainer() {
+                    var isVisible = searchContainer.style.display === 'block';
+                    searchContainer.style.display = isVisible ? 'none' : 'block';
+                    if (!isVisible) searchInput.focus();
+                }
+
+                showToast('Welcome to Akmark', 'bi-lightning-fill');
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+        })();
+    </script>
+</body>
+</html>
