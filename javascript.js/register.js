@@ -78,7 +78,7 @@
 
         try {
             // Send request to Cloudflare Function (relative path!)
-            const response = await fetch('/register-api', {
+            const response = await fetch('backend.js/register-api.js', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
