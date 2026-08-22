@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akmark Dashboard</title>
+    <style>
+        /* ====== RESET & VARIABLES ====== */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #0f1117;
+            --surface: #1c1f27;
+            --surface2: #2a2d3a;
+            --text: #ffffff;
+            --text-sub: #9aa0b0;
+            --border: #333642;
+            --accent: #ff6b6b;
+            --skeleton: #2e323e;
+            --skeleton-highlight: #3b3f4c;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ====== HEADER (no skeleton) ====== */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            height: 60px;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .icon-btn:hover { background: var(--surface2); }
+
+        /* ====== SEARCH OVERLAY (below header) ====== */
+        .search-overlay {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 15px 20px;
+            display: none;  /* hidden by default */
+            z-index: 99;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .search-overlay.active { display: block; }
+        .search-input {
+            width: 100%;
+            padding: 10px 15px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+            outline: none;
+        }
+        .search-results {
+            margin-top: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        /* ====== MAIN CONTENT ====== */
+        .main-container {
+            flex: 1;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+            width: 100%;
+        }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* ====== SKELETON STYLES ====== */
+        .skeleton {
+            position: relative;
+            overflow: hidden;
+            background: var(--skeleton);
+            border-radius: 8px;
+        }
+        .skeleton::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--skeleton-highlight), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            100% { left: 100%; }
+        }
+        .skeleton-circle { border-radius: 50%; }
+        .skeleton-text { height: 14px; margin: 5px 0; }
+        .skeleton-btn { height: 40px; border-radius: 8px; }
+
+        /* ====== WALLET & BALANCE ====== */
+        .wallet-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        #walletIcon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--surface2);
+        }
+        #walletIcon img { width: 24px; height: 24px; }
+        #walletValue {
+            font-size: 18px;  /* ← reduced to 18px */
+            font-weight: 600;
+        }
+        #walletSkeleton { margin-left: 15px; }
+
+        /* ====== ACCOUNT INFO ====== */
+        .account-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        #accountAvatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--surface2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .account-details { flex: 1; }
+        .account-details .name { font-weight: 600; font-size: 1.1rem; }
+        .account-details .meta { font-size: 0.9rem; color: var(--text-sub); }
+
+        /* ====== BUTTONS ====== */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            flex: 1;
+            min-width: 120px;
+        }
+        .btn:hover { background: var(--border); }
+        .btn-danger { border-color: var(--accent); color: var(--accent); }
+
+        /* ====== MOVIE CARD (search results) ====== */
+        .movie-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+        }
+        .movie-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: var(--skeleton);
+        }
+        .movie-card .title { font-weight: 600; margin-top: 8px; }
+
+        /* ====== BOTTOM BAR (static) ====== */
+        .bottom-bar {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            z-index: 100;
+        }
+        .bottom-bar a {
+            color: var(--text-sub);
+            text-decoration: none;
+            font-size: 1.2rem;
+            padding: 5px;
+        }
+        .bottom-bar a.active { color: var(--accent); }
+
+        /* ====== TOAST ====== */
+        #toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 200;
+        }
+        #toast.visible { opacity: 1; pointer-events: auto; }
+        #toast svg { fill: var(--accent); }
+
+        /* ====== RESPONSIVE ====== */
+        @media (max-width: 600px) {
+            .main-container { padding: 0 10px; }
+            .action-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body class="loading">
+
+    <!-- HEADER (static, no skeleton) -->
+    <header class="header">
+        <div class="logo" id="logoHome">Akmark</div>
+        <div class="header-right">
+            <button class="icon-btn" id="searchToggle" title="Search">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- SEARCH OVERLAY (appears below header) -->
+    <div class="search-overlay" id="searchOverlay">
+        <input type="text" class="search-input" id="accountSearchInput" placeholder="Search for films...">
+        <div class="search-results" id="searchResults"></div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-container">
+        <!-- Wallet Card -->
+        <div class="card">
+            <div class="wallet-row">
+                <!-- Wallet Icon / Skeleton -->
+                <div id="walletIcon" class="skeleton-circle skeleton"></div>
+                <div>
+                    <!-- Balance Skeleton -->
+                    <div id="walletSkeleton" class="skeleton skeleton-text" style="width: 120px;"></div>
+                    <!-- Real balance (hidden by default) -->
+                    <div id="walletRealValue" style="display: none;">
+                        <span style="color: var(--text-sub); font-size: 0.8rem;">Balance: </span>
+                        <span id="walletValue" style="font-size: 18px;">0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Card -->
+        <div class="card">
+            <div class="account-row">
+                <!-- Avatar Skeleton -->
+                <div id="accountAvatar" class="skeleton-circle skeleton"></div>
+                <div class="account-details">
+                    <!-- Full Name Skeleton -->
+                    <div id="accountFullName" class="skeleton skeleton-text" style="width: 150px;"></div>
+                    <!-- User ID Skeleton -->
+                    <div id="accountUserId" class="skeleton skeleton-text" style="width: 100px;"></div>
+                    <!-- Phone Skeleton -->
+                    <div id="accountPhone" class="skeleton skeleton-text" style="width: 80px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons (skeleton until loaded) -->
+        <div class="card">
+            <div class="action-buttons" id="actionButtons">
+                <!-- Skeleton buttons initially -->
+                <div class="skeleton skeleton-btn" style="width: 100%;"></div>
+                <div class="skeleton skeleton-btn" style="width: 100%;"></div>
+                <div class="skeleton skeleton-btn" style="width: 100%;"></div>
+            </div>
+            <!-- Actual buttons (hidden by default) -->
+            <div class="action-buttons" id="actionButtonsReal" style="display: none;">
+                <button class="btn" id="addCashBtn">Add Cash</button>
+                <button class="btn" id="settingsBtn">Settings</button>
+                <button class="btn btn-danger" id="logoutBtn">Logout</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- BOTTOM BAR (static) -->
+    <nav class="bottom-bar">
+        <a href="/home"><svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></a>
+        <a href="/wallet"><svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zM12 16h10V8H12v8zm4-6c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1z"/></svg></a>
+        <a href="/settings"><svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L3.1 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></a>
+    </nav>
+
+    <!-- TOAST -->
+    <div id="toast">
+        <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        <span></span>
+    </div>
+
+    <!-- ====== JAVASCRIPT ====== -->
+    <script>
+        (function() {
+            'use strict';
+
+            var TOKEN_KEY = 'akmark_token';
+            var USER_KEY = 'akmark_user';
+
+            function getToken() { return localStorage.getItem(TOKEN_KEY); }
+            function setUser(user) { localStorage.setItem(USER_KEY, JSON.stringify(user)); }
+            function clearSession() {
+                localStorage.removeItem(TOKEN_KEY);
+                localStorage.removeItem('akmark_refresh_token');
+                localStorage.removeItem(USER_KEY);
+            }
+
+            // ====== SKELETON MANAGEMENT ======
+            function removeSkeleton(element) {
+                if (element) {
+                    element.classList.remove('skeleton');
+                    element.classList.remove('skeleton-circle');
+                    element.classList.remove('skeleton-text');
+                    element.classList.remove('skeleton-btn');
+                }
+            }
+
+            function showRealButtons() {
+                var skeletonBtns = document.querySelectorAll('#actionButtons .skeleton-btn');
+                skeletonBtns.forEach(function(btn) { btn.style.display = 'none'; });
+                document.getElementById('actionButtonsReal').style.display = 'flex';
+            }
+
+            function loadUserData() {
+                var token = getToken();
+                if (!token) {
+                    window.location.href = '/register';
+                    return;
+                }
+
+                fetch('https://jnqwvmxuieeelvukhcsq.supabase.co/functions/v1/login-checker', {
+                    method: 'GET',
+                    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
+                })
+                .then(function(response) {
+                    return response.text().then(function(text) {
+                        try { return JSON.parse(text); } catch (e) { throw new Error('Invalid'); }
+                    });
+                })
+                .then(function(data) {
+                    if (!data.valid) {
+                        clearSession();
+                        window.location.href = '/register';
+                        return;
+                    }
+
+                    var user = data.user;
+                    if (user) {
+                        setUser(user);
+
+                        // Wallet icon
+                        var walletIcon = document.getElementById('walletIcon');
+                        if (walletIcon) {
+                            walletIcon.classList.remove('skeleton', 'skeleton-circle');
+                            walletIcon.innerHTML = '<img src="images/akimark-wallet.svg" alt="Wallet">';
+                        }
+
+                        // Balance
+                        var balance = user.wallet_balance || 0;
+                        var walletSkeleton = document.getElementById('walletSkeleton');
+                        var walletReal = document.getElementById('walletRealValue');
+                        if (walletSkeleton) walletSkeleton.style.display = 'none';
+                        if (walletReal) {
+                            walletReal.style.display = 'block';
+                            var walletValue = document.getElementById('walletValue');
+                            if (walletValue) walletValue.textContent = Number(balance).toFixed(2);
+                        }
+
+                        // Account avatar
+                        var accountAvatar = document.getElementById('accountAvatar');
+                        if (accountAvatar) {
+                            accountAvatar.classList.remove('skeleton', 'skeleton-circle');
+                            accountAvatar.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
+                        }
+
+                        // Full name
+                        var fullNameEl = document.getElementById('accountFullName');
+                        if (fullNameEl) {
+                            fullNameEl.textContent = user.full_name || '';
+                            fullNameEl.classList.remove('skeleton', 'skeleton-text');
+                        }
+
+                        // User ID
+                        var userIdEl = document.getElementById('accountUserId');
+                        if (userIdEl) {
+                            userIdEl.textContent = user.user_id || '';
+                            userIdEl.classList.remove('skeleton', 'skeleton-text');
+                        }
+
+                        // Phone
+                        var phoneEl = document.getElementById('accountPhone');
+                        if (phoneEl) {
+                            phoneEl.textContent = user.phone || '';
+                            phoneEl.classList.remove('skeleton', 'skeleton-text');
+                        }
+
+                        // Show real buttons
+                        showRealButtons();
+
+                        // Remove loading class from body
+                        document.body.classList.remove('loading');
+                    }
+                })
+                .catch(function() {
+                    clearSession();
+                    window.location.href = '/register';
+                });
+            }
+
+            // ====== SEARCH FEATURE ======
+            var searchToggle = document.getElementById('searchToggle');
+            var searchOverlay = document.getElementById('searchOverlay');
+            var searchInput = document.getElementById('accountSearchInput');
+            var searchResults = document.getElementById('searchResults');
+
+            // Sample movie data (replace with real API if needed)
+            var movies = [
+                { title: 'Inception', year: 2010, img: 'https://via.placeholder.com/200x150?text=Inception' },
+                { title: 'Interstellar', year: 2014, img: 'https://via.placeholder.com/200x150?text=Interstellar' },
+                { title: 'The Dark Knight', year: 2008, img: 'https://via.placeholder.com/200x150?text=Dark+Knight' },
+                { title: 'Matrix', year: 1999, img: 'https://via.placeholder.com/200x150?text=Matrix' },
+                { title: 'Avatar', year: 2009, img: 'https://via.placeholder.com/200x150?text=Avatar' },
+                { title: 'Titanic', year: 1997, img: 'https://via.placeholder.com/200x150?text=Titanic' }
+            ];
+
+            searchToggle.addEventListener('click', function() {
+                searchOverlay.classList.toggle('active');
+                if (searchOverlay.classList.contains('active')) {
+                    searchInput.focus();
+                } else {
+                    searchResults.innerHTML = '';
+                    searchInput.value = '';
+                }
+            });
+
+            searchInput.addEventListener('input', function(e) {
+                var query = e.target.value.trim().toLowerCase();
+                searchResults.innerHTML = '';
+
+                if (query.length === 0) {
+                    // Show skeleton loading while "fetching" default list
+                    for (var i = 0; i < 3; i++) {
+                        var skelCard = document.createElement('div');
+                        skelCard.className = 'movie-card';
+                        skelCard.innerHTML = '<div class="skeleton" style="height:150px;border-radius:8px;"></div><div class="skeleton skeleton-text" style="width:70%;margin:8px auto;"></div>';
+                        searchResults.appendChild(skelCard);
+                    }
+                    // Simulate fetching default movies
+                    setTimeout(function() {
+                        searchResults.innerHTML = '';
+                        displayMovies(movies);
+                    }, 800);
+                } else {
+                    // Filter movies
+                    var filtered = movies.filter(function(m) {
+                        return m.title.toLowerCase().includes(query);
+                    });
+                    // Show skeleton while "searching"
+                    for (var i = 0; i < 3; i++) {
+                        var skelCard = document.createElement('div');
+                        skelCard.className = 'movie-card';
+                        skelCard.innerHTML = '<div class="skeleton" style="height:150px;border-radius:8px;"></div><div class="skeleton skeleton-text" style="width:70%;margin:8px auto;"></div>';
+                        searchResults.appendChild(skelCard);
+                    }
+                    setTimeout(function() {
+                        searchResults.innerHTML = '';
+                        displayMovies(filtered);
+                    }, 500);
+                }
+            });
+
+            function displayMovies(movieList) {
+                if (movieList.length === 0) {
+                    searchResults.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:var(--text-sub);">No movies found</p>';
+                    return;
+                }
+                movieList.forEach(function(movie) {
+                    var card = document.createElement('div');
+                    card.className = 'movie-card';
+                    card.innerHTML = '<img src="' + movie.img + '" alt="' + movie.title + '"><div class="title">' + movie.title + '</div>';
+                    searchResults.appendChild(card);
+                });
+            }
+
+            // ====== TOAST ======
+            function showToast(msg, isError) {
+                var toast = document.getElementById('toast');
+                if (!toast) return;
+                toast.querySelector('span').textContent = msg;
+                toast.classList.add('visible');
+                if (isError) {
+                    toast.style.borderColor = '#ff6b6b';
+                    toast.querySelector('svg').style.fill = '#ff6b6b';
+                } else {
+                    toast.style.borderColor = 'var(--border-subtle)';
+                    toast.querySelector('svg').style.fill = 'var(--accent)';
+                }
+                setTimeout(function() { toast.classList.remove('visible'); }, 3000);
+            }
+
+            // ====== INIT ======
+            function init() {
+                loadUserData();
+
+                // Add Cash Button
+                var addCashBtn = document.getElementById('addCashBtn');
+                if (addCashBtn) addCashBtn.addEventListener('click', function() { showToast('Top-up feature coming soon'); });
+
+                // Logout
+                var logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn) logoutBtn.addEventListener('click', function() { logout(); });
+
+                // Settings
+                var settingsBtn = document.getElementById('settingsBtn');
+                if (settingsBtn) settingsBtn.addEventListener('click', function() { showToast('Settings feature coming soon'); });
+
+                // Logo
+                var logoHome = document.getElementById('logoHome');
+                if (logoHome) logoHome.addEventListener('click', function() { window.location.href = '/home'; });
+            }
+
+            function logout() {
+                clearSession();
+                window.location.href = '/register';
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        })();
+    </script>
+</body>
+</html>
