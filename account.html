@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Akimark Account</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #080808;
+            --bg-surface: #151515;
+            --bg-secondary: #1C1C1C;
+            --accent: #c71515;
+            --accent-soft: #a00f0f;
+            --white: #FFFFFF;
+            --text-muted: #A7A7A7;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --radius-lg: 20px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            --transition: 0.25s cubic-bezier(0.2, 0, 0, 1);
+            --header-height: 62px;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: var(--bg-primary);
+            color: var(--white);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        a { color: inherit; text-decoration: none; }
+        button { cursor: pointer; font-family: inherit; border: none; background: none; color: inherit; }
+        input { font-family: inherit; border: none; outline: none; background: none; color: inherit; }
+        img { display: block; max-width: 100%; }
+        ul { list-style: none; }
+
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+
+        /* ==== HEADER ==== */
+        .header {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(8, 8, 8, 0.95); backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-subtle); padding: 12px 0;
+        }
+        .header .container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; }
+        .logo { display: flex; align-items: center; }
+        .logo img { height: 40px; width: auto; object-fit: contain; }
+        .desktop-nav { display: none; align-items: center; gap: 28px; }
+        .desktop-nav a { font-size: 0.95rem; font-weight: 500; color: var(--text-muted); transition: color var(--transition); }
+        .desktop-nav a:hover, .desktop-nav a.active { color: var(--white); }
+        .header-actions { display: flex; align-items: center; gap: 8px; }
+
+        /* ==== ACCOUNT PAGE ==== */
+        .account-page {
+            padding: 24px 8px 120px;
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+        }
+
+        .account-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        /* Wallet */
+        .wallet-balance {
+            background: linear-gradient(135deg, rgba(199,21,21,0.1), rgba(199,21,21,0.02));
+            border: 1px solid rgba(199,21,21,0.2);
+            border-radius: var(--radius);
+            padding: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 80px;
+        }
+        .wallet-icon {
+            width: 44px;
+            height: 44px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(199,21,21,0.15);
+            border-radius: 50%;
+        }
+        .wallet-icon img {
+            width: 24px;
+            height: 24px;
+        }
+        .wallet-info {
+            flex: 1;
+        }
+        .wallet-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+        .wallet-amount {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--white);
+            line-height: 1.2;
+        }
+        .wallet-currency {
+            font-size: 14px;
+            color: var(--accent);
+            margin-left: 4px;
+        }
+        .add-cash-btn {
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.8rem;
+            font-weight: 800;
+            padding: 10px 16px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            transition: background var(--transition), transform var(--transition);
+            flex-shrink: 0;
+        }
+        .add-cash-btn:hover {
+            background: var(--accent-soft);
+            transform: scale(1.05);
+        }
+
+        /* Account Header */
+        .account-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 14px;
+            min-height: 70px;
+        }
+        .account-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .account-avatar svg {
+            width: 28px;
+            height: 28px;
+            fill: var(--text-muted);
+        }
+        .account-title h2 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-bottom: 2px;
+        }
+        .account-title p {
+            color: var(--white);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* Details */
+        .account-detail {
+            margin-bottom: 12px;
+        }
+        .account-detail-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        .account-detail-value {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 10px 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            word-break: break-all;
+            min-height: 44px;
+        }
+        .account-detail-value svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--accent);
+            flex-shrink: 0;
+        }
+
+        /* Actions */
+        .account-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .btn-accent {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--accent);
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 12px 20px;
+            border-radius: 50px;
+            transition: background var(--transition), transform var(--transition);
+            border: none;
+            flex: 1;
+        }
+        .btn-accent:hover {
+            background: var(--accent-soft);
+            transform: scale(1.02);
+        }
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--bg-secondary);
+            color: var(--white);
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 12px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--border-subtle);
+            transition: background var(--transition), border var(--transition);
+            flex: 1;
+        }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.06);
+            border-color: var(--accent);
+        }
+        .btn-secondary svg, .btn-accent svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        /* Skeleton Styles */
+        .skeleton {
+            position: relative;
+            overflow: hidden;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+        }
+        .skeleton::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .skeleton-circle {
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            position: relative;
+            overflow: hidden;
+        }
+        .skeleton-circle::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+        .skeleton-text {
+            height: 16px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+        .skeleton-text-sm {
+            height: 12px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+
+        /* ==== SEARCH OVERLAY ==== */
+        .search-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 80px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .search-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .search-overlay .search-bar {
+            width: 90%;
+            max-width: 600px;
+            background: var(--bg-surface);
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            border: 1px solid var(--border-subtle);
+        }
+        .search-overlay .search-bar img {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+            filter: invert(0.6);
+        }
+        .search-overlay .search-bar input {
+            flex: 1;
+            font-size: 1.1rem;
+            color: var(--white);
+            background: transparent;
+            border: none;
+            outline: none;
+        }
+        .search-overlay .close-search {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .search-overlay .close-search svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--white);
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+            background: rgba(8, 8, 8, 0.96); backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border-subtle);
+            display: flex; justify-content: space-around;
+            padding: 10px 0 8px;
+            height: 68px;
+        }
+        .bottom-nav a {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 2px; font-size: 0.65rem; font-weight: 500; color: var(--text-muted);
+            transition: color var(--transition); padding: 0 12px; min-width: 56px;
+        }
+        .bottom-nav a img {
+            width: 30px; height: 30px; object-fit: contain;
+            filter: invert(0.6); transition: filter var(--transition);
+        }
+        .bottom-nav a:hover img, .bottom-nav a.active img {
+            filter: invert(0) sepia(1) saturate(5) hue-rotate(340deg);
+        }
+        .bottom-nav a:hover, .bottom-nav a.active { color: var(--accent); }
+
+        @media (min-width: 900px) {
+            .desktop-nav { display: flex; }
+            .bottom-nav { display: none; }
+            body { padding-bottom: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo" id="logoHome">
+                <img src="images/logo-akimark.png" onerror="this.onerror=null; this.src='images/logo-akimark.jpg';" alt="Akimark Logo">
+            </div>
+            <nav class="desktop-nav" id="desktopNav">
+                <a href="home">Home</a>
+                <a href="movies">Movies</a>
+                <a href="series">Series</a>
+                <a href="categories">Categories</a>
+                <a href="account" class="active">Account</a>
+            </nav>
+            <div class="header-actions"></div>
+        </div>
+    </header>
+
+    <!-- ACCOUNT PAGE (no subheader now) -->
+    <div class="account-page">
+        <div class="account-card" id="accountCard">
+            <!-- Wallet -->
+            <div class="wallet-balance" id="walletContainer">
+                <div class="wallet-icon skeleton-circle" id="walletIcon"></div>
+                <div class="wallet-info">
+                    <div class="wallet-label">Wallet Balance</div>
+                    <div class="wallet-amount">
+                        <div class="skeleton-text-sm" style="width: 60px;" id="walletSkeleton"></div>
+                        <div id="walletRealValue" style="display: none;">
+                            <span id="walletValue">0.00</span>
+                            <span class="wallet-currency">MK</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="add-cash-btn" id="addCashBtn">ADD CASH</button>
+            </div>
+
+            <!-- Account Header -->
+            <div class="account-header" id="accountHeader">
+                <div class="account-avatar skeleton-circle" id="accountAvatar"></div>
+                <div class="account-title">
+                    <h2>My Account</h2>
+                    <p id="accountFullName"><div class="skeleton-text" style="width:120px;"></div></p>
+                </div>
+            </div>
+
+            <!-- User ID -->
+            <div class="account-detail">
+                <div class="account-detail-label">User ID</div>
+                <div class="account-detail-value">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm-8 6c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm-7 10c0-2.33 4.67-3.5 7-3.5s7 1.17 7 3.5v.5H5v-.5z"/></svg>
+                    <span id="accountUserId"><div class="skeleton-text" style="width:150px;"></div></span>
+                </div>
+            </div>
+
+            <!-- Phone -->
+            <div class="account-detail">
+                <div class="account-detail-label">Phone Number</div>
+                <div class="account-detail-value">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+                    <span id="accountPhone"><div class="skeleton-text" style="width:100px;"></div></span>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="account-actions">
+                <button class="btn-accent" id="logoutBtn">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 17l5-5-5-5v3H3v4h7v3zm8-14h-6v2h6v14h-6v2h6c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+                    Logout
+                </button>
+                <button class="btn-secondary" id="settingsBtn">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                    Settings
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEARCH OVERLAY (hidden by default) -->
+    <div class="search-overlay" id="searchOverlay">
+        <button class="close-search" id="closeSearchBtn">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+        <div class="search-bar">
+            <img src="images/akimark-search.svg" alt="Search icon">
+            <input type="text" placeholder="Search movies, series..." id="overlaySearchInput">
+        </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+        <a href="home"><img src="images/akimark-home.svg" alt="Home"><span>Home</span></a>
+        <a href="#" id="searchNavBtn"><img src="images/akimark-search.svg" alt="Search"><span>Search</span></a>
+        <a href="movies"><img src="images/akimark-movies.svg" alt="Movies"><span>Movies</span></a>
+        <a href="account" class="active"><img src="images/akimark-account.svg" alt="Account"><span>Account</span></a>
+    </nav>
+
+    <script src="javascript.js/account.js"></script>
+</body>
+</html>
