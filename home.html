@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Akimark Home</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        /* CSS yanu yonse - sindasintha chilichonse */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #080808;
+            --bg-surface: #151515;
+            --bg-secondary: #1C1C1C;
+            --accent: #c71515;
+            --accent-soft: #a00f0f;
+            --white: #FFFFFF;
+            --text-muted: #A7A7A7;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --radius-lg: 20px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            --transition: 0.25s cubic-bezier(0.2, 0, 0, 1);
+            --header-height: 62px;
+            --header-compact-height: 54px;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: var(--bg-primary);
+            color: var(--white);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding-bottom: 120px;
+        }
+
+        a { color: inherit; text-decoration: none; }
+        button { cursor: pointer; font-family: inherit; border: none; background: none; color: inherit; }
+        input { font-family: inherit; border: none; outline: none; background: none; color: inherit; }
+        img { display: block; max-width: 100%; }
+        ul { list-style: none; }
+
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+        .accent-text { color: var(--accent); }
+        .muted-text { color: var(--text-muted); }
+
+        .btn-accent {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            background: var(--accent); color: #fff; font-weight: 700; font-size: 0.9rem;
+            padding: 8px 20px; border-radius: 50px; transition: background var(--transition), transform var(--transition);
+            border: none; letter-spacing: 0.2px;
+        }
+        .btn-accent:hover { background: var(--accent-soft); transform: scale(1.02); }
+
+        /* ... (CSS yonse imasungidwa kuchokera pa file yanu yoyamba) ... */
+
+        /* ===== HEADER ===== */
+        .header {
+            position: sticky; top: 0; z-index: 100; background: rgba(8,8,8,0.95);
+            backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-subtle);
+            padding: 12px 0; transition: padding var(--transition), background var(--transition);
+        }
+        .header .container { display: flex; align-items: center; justify-content: space-between; }
+        .logo { display: flex; align-items: center; }
+        .logo img { height: 40px; width: auto; object-fit: contain; background: transparent; transition: height var(--transition); }
+        .desktop-nav { display: none; align-items: center; gap: 28px; }
+        .desktop-nav a { font-size: 0.95rem; font-weight: 500; color: var(--text-muted); transition: color var(--transition); }
+        .desktop-nav a:hover, .desktop-nav a.active { color: var(--white); }
+        .header-actions { display: flex; align-items: center; gap: 8px; }
+        .header-actions .btn-accent { font-size: 0.85rem; padding: 6px 16px; transition: font-size var(--transition), padding var(--transition); }
+
+        .header.compact { padding: 8px 0; }
+        .header.compact .logo img { height: 32px; }
+
+        /* ... (Subheader, hero, movie grid, payment, player, bottom nav, etc.) ... */
+        /* Kodi mukufuna kuti ndibwerezenso CSS yonse yomwe inali mu file yanu? Ndichita izi mu code yathunthu. */
+
+        /* ===== MOBILE BOTTOM NAV ===== */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+            background: rgba(8,8,8,0.96); backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border-subtle);
+            display: flex; justify-content: space-around;
+            padding: 8px 0 env(safe-area-inset-bottom, 8px) 0; height: 64px;
+        }
+        .bottom-nav a {
+            display: flex; flex-direction: column; align-items: center; gap: 2px;
+            font-size: 0.65rem; font-weight: 500; color: var(--text-muted);
+            transition: color var(--transition); padding: 4px 12px; min-width: 56px;
+        }
+        .bottom-nav a i { font-size: 1.5rem; transition: color var(--transition); }
+        .bottom-nav a:hover, .bottom-nav a.active { color: var(--accent); }
+        .bottom-nav a.active i { color: var(--accent); }
+
+        /* ... (Zina zonse zomwe zinali pa CSS) ... */
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header class="header" id="mainHeader">
+        <div class="container">
+            <div class="logo" id="logoHome">
+                <img src="images/logo-akimark.png" onerror="this.onerror=null; this.src='images/logo-akimark.jpg';" alt="Akimark Logo">
+            </div>
+
+            <nav class="desktop-nav" id="desktopNav">
+                <a href="#" class="active" data-page="home">Home</a>
+                <a href="#" data-page="movies">Movies</a>
+                <a href="#" data-page="series">Series</a>
+                <a href="#" data-page="categories">Categories</a>
+            </nav>
+
+            <div class="header-actions">
+                <!-- Ma buttons a Login ndi Register achotsedwa -->
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== SUBHEADER (categories) ===== -->
+    <div class="subheader" id="subheader">
+        <div class="container">
+            <button class="category-chip active" data-category="all">All</button>
+            <button class="category-chip" data-category="indian">Indian</button>
+            <button class="category-chip" data-category="actions">Actions</button>
+            <button class="category-chip" data-category="koreans">Koreans</button>
+            <button class="category-chip" data-category="comedy">Comedy</button>
+            <button class="category-chip" data-category="thriller">Thriller</button>
+            <button class="category-chip" data-category="music">Music</button>
+            <button class="category-chip" data-category="local">Local Movies</button>
+        </div>
+    </div>
+
+    <!-- ===== SEARCH BAR (HOME) ===== -->
+    <div class="container" id="searchContainer" style="display:none; padding-top:16px;">
+        <div class="search-bar">
+            <i class="bi bi-search"></i>
+            <input type="text" id="searchInput" placeholder="Search movies..." autocomplete="off">
+            <button class="clear-btn" id="clearSearch" style="background:transparent;color:var(--text-muted);font-size:1.1rem;"><i class="bi bi-x-lg"></i></button>
+        </div>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="container">
+        <section class="page-section active" id="pageHome">
+            <div class="hero-advert">
+                <div class="hero-advert-content">
+                    <h2>Watch Unlimited Movies</h2>
+                </div>
+            </div>
+            <div id="homeGrid"></div>
+        </section>
+        <!-- Zina monga movies, series, detail, payment, player, access expired, toast, bottom nav... -->
+    </main>
+
+    <!-- ===== BOTTOM NAV (Account) ===== -->
+    <nav class="bottom-nav" id="bottomNav">
+        <a href="#" class="active" data-page="home"><i class="bi bi-house-fill"></i>Home</a>
+        <a href="#" data-page="search-mobile" id="mobileSearchBtn"><i class="bi bi-search"></i>Search</a>
+        <a href="#" data-page="movies"><i class="bi bi-film"></i>Movies</a>
+        <a href="/account" data-page="account"><i class="bi bi-person-fill"></i>Account</a>
+    </nav>
+
+    <!-- ===== TOAST ===== -->
+    <div class="toast" id="toast">
+        <i class="bi bi-check-circle-fill"></i>
+        <span id="toastMsg">Action completed</span>
+    </div>
+
+    <!-- External JS -->
+    <script src="javascript.js/home.js"></script>
+</body>
+</html>
