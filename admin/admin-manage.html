@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Manage Films — Akimark Admin</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <style>
+        /* ===== ROOT VARIABLES ===== */
+        :root {
+            --bg-black: #000000;
+            --bg-dark: #111111;
+            --bg-card: #1C1C1C;
+            --bg-input: #2A2A2A;
+            --bg-grey: #f8f9fa;
+            --text-white: #ffffff;
+            --text-grey: #A7A7A7;
+            --border-dark: #333333;
+            --accent: #c71515;
+            --accent-soft: #a00f0f;
+            --radius: 12px;
+            --transition: 0.25s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        /* ===== GLOBAL ===== */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-black);
+            color: var(--text-white);
+            padding-bottom: 90px;
+            min-height: 100vh;
+        }
+
+        /* ===== HEADER (Black) ===== */
+        .admin-header {
+            background: var(--bg-black);
+            border-bottom: 1px solid var(--border-dark);
+            padding: 14px 0;
+        }
+        .admin-header .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .admin-logo img {
+            height: 40px;
+            width: auto;
+        }
+        .admin-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-white);
+        }
+        .admin-user-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-grey);
+            font-size: 0.85rem;
+        }
+        .admin-user-badge i {
+            font-size: 1.3rem;
+        }
+
+        /* ===== ADMIN NAME BAR (Under Header) ===== */
+        .admin-name-bar {
+            background: var(--bg-dark);
+            border-bottom: 1px solid var(--border-dark);
+            padding: 10px 16px;
+            text-align: center;
+            font-size: 0.95rem;
+            color: var(--text-grey);
+        }
+        .admin-name-bar strong {
+            color: var(--text-white);
+        }
+
+        /* ===== MAIN CONTENT CONTAINER (Grey/White) ===== */
+        .main-content {
+            max-width: 800px;
+            margin: 24px auto;
+            padding: 0 16px;
+        }
+
+        /* Card Container */
+        .upload-card {
+            background: var(--bg-grey);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .upload-card h2 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #000;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .upload-card h2 i {
+            color: var(--accent);
+        }
+
+        /* Form Styles */
+        .form-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        .form-control, .form-select {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            color: #333;
+            padding: 10px 12px;
+            font-size: 0.95rem;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 0.25rem rgba(199,21,21,0.1);
+            background: #fff;
+            color: #333;
+        }
+
+        /* File Drop Areas */
+        .file-drop {
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #fff;
+        }
+        .file-drop:hover {
+            border-color: var(--accent);
+            background: #f0f0f0;
+        }
+        .file-drop i {
+            font-size: 2.5rem;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 10px;
+        }
+        .file-drop p {
+            color: #666;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+        .file-drop input[type="file"] {
+            display: none;
+        }
+
+        .preview {
+            margin-top: 12px;
+            display: none;
+        }
+        .preview img {
+            max-width: 200px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        /* Upload Button */
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background 0.3s;
+        }
+        .btn-submit:hover {
+            background: var(--accent-soft);
+        }
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Progress */
+        .progress-wrap {
+            margin-top: 16px;
+            display: none;
+        }
+        .progress-wrap.visible {
+            display: block;
+        }
+        .progress-bar {
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            transition: width 0.3s;
+        }
+        .progress-text {
+            font-size: 0.85rem;
+            color: #555;
+            margin-top: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* ===== BOTTOM NAV (Black) ===== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-black);
+            border-top: 1px solid var(--border-dark);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            z-index: 999;
+        }
+        .bottom-nav a {
+            color: var(--text-grey);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.75rem;
+            gap: 4px;
+            transition: color 0.3s;
+        }
+        .bottom-nav a:hover {
+            color: var(--text-white);
+        }
+        .bottom-nav a.active {
+            color: var(--accent);
+        }
+        .bottom-nav i {
+            font-size: 1.5rem;
+        }
+
+        /* ===== RESPONSIVE ADJUSTMENTS ===== */
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 0 12px;
+            }
+            .upload-card {
+                padding: 16px;
+            }
+            .admin-title {
+                font-size: 1rem;
+            }
+        }
+        @media (min-width: 768px) {
+            .admin-header .container {
+                max-width: 800px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER (Black) ===== -->
+    <header class="admin-header">
+        <div class="container">
+            <div class="admin-logo">
+                <img src="../images/logo-akimark.png" onerror="this.onerror=null; this.src='../images/logo-akimark.jpg';" alt="Akimark">
+            </div>
+            <div class="admin-title">
+                <i class="bi bi-shield-lock me-2"></i>ADMIN DASHBOARD
+            </div>
+            <div class="admin-user-badge">
+                <i class="bi bi-person-circle"></i>
+                <span id="adminNameBadge">Admin</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== ADMIN NAME BAR ===== -->
+    <div class="admin-name-bar">
+        Translating as <strong id="adminNameDisplay">—</strong>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main-content">
+        <div class="upload-card">
+            <h2>
+                <i class="bi bi-cloud-arrow-up"></i>
+                Upload New Film
+            </h2>
+            <form id="uploadFilmForm">
+                <div class="row g-3">
+                    <!-- Title -->
+                    <div class="col-12">
+                        <label class="form-label" for="filmTitle">Film Title</label>
+                        <input type="text" class="form-control" id="filmTitle" required>
+                    </div>
+                    
+                    <!-- Genre & Year -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label" for="filmGenre">Genre</label>
+                        <select class="form-select" id="filmGenre" required>
+                            <option value="">Select Genre</option>
+                            <option value="actions">Actions</option>
+                            <option value="indian">Indian</option>
+                            <option value="koreans">Koreans</option>
+                            <option value="comedy">Comedy</option>
+                            <option value="thriller">Thriller</option>
+                            <option value="music">Music</option>
+                            <option value="local">Local</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label" for="filmYear">Year</label>
+                        <input type="number" class="form-control" id="filmYear" min="1900" max="2100" required>
+                    </div>
+                    
+                    <!-- Duration & Price -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label" for="filmDuration">Duration (min)</label>
+                        <input type="number" class="form-control" id="filmDuration" min="1" required>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label" for="filmPrice">Price (MK)</label>
+                        <input type="number" class="form-control" id="filmPrice" min="0" step="0.01" required>
+                    </div>
+                    
+                    <!-- Category & Featured -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label" for="filmCategory">Category</label>
+                        <input type="text" class="form-control" id="filmCategory" placeholder="e.g. actions" required>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label" for="filmFeatured">Featured</label>
+                        <select class="form-select" id="filmFeatured">
+                            <option value="false">No</option>
+                            <option value="true">Yes</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="col-12">
+                        <label class="form-label" for="filmDescription">Description</label>
+                        <textarea class="form-control" id="filmDescription" rows="3"></textarea>
+                    </div>
+                    
+                    <!-- Poster Upload -->
+                    <div class="col-12">
+                        <label class="form-label" for="posterFile">Poster Image</label>
+                        <div class="file-drop" id="fileDrop">
+                            <i class="bi bi-image"></i>
+                            <p>Tap to upload poster image</p>
+                            <input type="file" id="posterFile" accept="image/*" hidden>
+                        </div>
+                        <div class="preview" id="preview">
+                            <img id="previewImg" alt="Preview">
+                        </div>
+                    </div>
+                    
+                    <!-- Video Upload -->
+                    <div class="col-12">
+                        <label class="form-label" for="videoFile">Film Video</label>
+                        <div class="file-drop" id="videoDrop">
+                            <i class="bi bi-play-circle"></i>
+                            <p>Tap to upload film video</p>
+                            <input type="file" id="videoFile" accept="video/*" hidden>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="uploadBtn">
+                    <i class="bi bi-cloud-arrow-up-fill"></i>
+                    Upload to Cloudflare
+                </button>
+            </form>
+
+            <!-- Progress Bar -->
+            <div class="progress-wrap" id="progressWrap">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">Uploading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== BOTTOM NAV (Black) ===== -->
+    <nav class="bottom-nav">
+        <a href="admin-dashboard.html">
+            <i class="bi bi-house-door-fill"></i>
+            <span>Home</span>
+        </a>
+        <a href="admin-manage.html" class="active">
+            <i class="bi bi-cloud-arrow-up-fill"></i>
+            <span>Uploads</span>
+        </a>
+        <a href="admin-account.html">
+            <i class="bi bi-person-fill"></i>
+            <span>Account</span>
+        </a>
+    </nav>
+
+    <!-- Bootstrap JS (optional) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Our scripts -->
+    <script src="../javascript.js/supabase.js"></script>
+    <script src="admin-manage.js"></script>
+</body>
+</html>
