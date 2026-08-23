@@ -138,7 +138,9 @@
             // Re-enable submit button if form still visible (not redirected)
             if (form.style.display !== 'none') {
                 // Mu register.js, pansi pa submit:
-var submitBtn = form.querySelector('.submit-btn');
+
+             
+    });var submitBtn = form.querySelector('.submit-btn');
 var btnText = submitBtn.querySelector('.btn-text');
 var spinner = submitBtn.querySelector('.spinner');
 
@@ -152,8 +154,6 @@ btnText.textContent = 'PROCESSING';
 submitBtn.classList.remove('processing');
 submitBtn.disabled = false;
 btnText.textContent = 'Register';
-        }
-    });
 
     // Logo click
     document.getElementById('logoHome').addEventListener('click', function() {
