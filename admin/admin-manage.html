@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Manage Films — Akimark</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        :root {
+            --bg: #080808;
+            --surface: #151515;
+            --secondary: #1C1C1C;
+            --accent: #c71515;
+            --white: #fff;
+            --muted: #A7A7A7;
+            --border: rgba(255,255,255,0.08);
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--white);
+            padding-bottom: 90px;
+        }
+        .header {
+            background: rgba(8,8,8,0.95);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 16px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 16px;
+        }
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+        .upload-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--white);
+            font-size: 0.95rem;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--accent);
+        }
+        .file-drop {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        .file-drop:hover {
+            border-color: var(--accent);
+        }
+        .file-drop svg {
+            width: 40px;
+            height: 40px;
+            fill: var(--muted);
+            margin-bottom: 10px;
+        }
+        .file-drop p {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+        .file-drop input[type="file"] {
+            display: none;
+        }
+        .preview {
+            margin-top: 12px;
+            display: none;
+        }
+        .preview img {
+            max-width: 200px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+        .btn-submit:hover {
+            background: #a00f0f;
+        }
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .progress-wrap {
+            margin-top: 16px;
+            display: none;
+        }
+        .progress-wrap.visible {
+            display: block;
+        }
+        .progress-bar {
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            transition: width 0.3s;
+        }
+        .progress-text {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-top: 8px;
+            text-align: center;
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(8,8,8,0.96);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            z-index: 200;
+        }
+        .bottom-nav a {
+            color: var(--muted);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.7rem;
+            gap: 4px;
+        }
+        .bottom-nav a.active {
+            color: var(--accent);
+        }
+        .bottom-nav svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <img src="../images/logo-akimark.png" onerror="this.onerror=null; this.src='../images/logo-akimark.jpg';" alt="Akimark">
+            </div>
+        </div>
+    </header>
+
+    <!-- Manage Content -->
+    <div class="container">
+        <h1 class="page-title">Manage Films</h1>
+        <div class="upload-card">
+            <form id="uploadFilmForm">
+                <div class="form-group">
+                    <label>Film Title</label>
+                    <input type="text" id="filmTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Genre</label>
+                    <select id="filmGenre" required>
+                        <option value="">Select Genre</option>
+                        <option value="actions">Actions</option>
+                        <option value="indian">Indian</option>
+                        <option value="koreans">Koreans</option>
+                        <option value="comedy">Comedy</option>
+                        <option value="thriller">Thriller</option>
+                        <option value="music">Music</option>
+                        <option value="local">Local</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Year</label>
+                    <input type="number" id="filmYear" min="1900" max="2100" required>
+                </div>
+                <div class="form-group">
+                    <label>Duration (min)</label>
+                    <input type="number" id="filmDuration" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Price (MK)</label>
+                    <input type="number" id="filmPrice" min="0" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <input type="text" id="filmCategory" placeholder="e.g. actions" required>
+                </div>
+                <div class="form-group">
+                    <label>Featured</label>
+                    <select id="filmFeatured">
+                        <option value="false">No</option>
+                        <option value="true">Yes</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="filmDescription" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Poster Image (Upload)</label>
+                    <div class="file-drop" id="fileDrop">
+                        <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                        <p>Tap to upload poster</p>
+                        <input type="file" id="posterFile" accept="image/*">
+                    </div>
+                    <div class="preview" id="preview">
+                        <img id="previewImg" alt="Preview">
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit" id="uploadBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    Upload Film
+                </button>
+            </form>
+
+            <!-- Progress -->
+            <div class="progress-wrap" id="progressWrap">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">Uploading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+        <a href="admin-dashboard.html">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            Home
+        </a>
+        <a href="admin-manage.html" class="active">
+            <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-2z"/></svg>
+            Manage
+        </a>
+        <a href="admin-account.html">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            Account
+        </a>
+    </nav>
+
+    <script src="../javascript.js/supabase.js"></script>
+    <script src="admin-manage.js"></script>
+</body>
+</html>
