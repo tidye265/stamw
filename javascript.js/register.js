@@ -137,9 +137,21 @@
         } finally {
             // Re-enable submit button if form still visible (not redirected)
             if (form.style.display !== 'none') {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Register';
-            }
+                // Mu register.js, pansi pa submit:
+var submitBtn = form.querySelector('.submit-btn');
+var btnText = submitBtn.querySelector('.btn-text');
+var spinner = submitBtn.querySelector('.spinner');
+
+submitBtn.disabled = true;
+submitBtn.classList.add('processing');
+btnText.textContent = 'PROCESSING';
+
+// ... Fetch logic ...
+
+// Katundu watha:
+submitBtn.classList.remove('processing');
+submitBtn.disabled = false;
+btnText.textContent = 'Register';
         }
     });
 
