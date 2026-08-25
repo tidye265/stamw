@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Akimark Home</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #080808;
+            --bg-surface: #151515;
+            --bg-secondary: #1C1C1C;
+            --accent: #c71515;
+            --accent-soft: #a00f0f;
+            --white: #FFFFFF;
+            --text-muted: #A7A7A7;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --radius: 10px;
+            --radius-sm: 6px;
+            --radius-lg: 16px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            --transition: 0.25s cubic-bezier(0.2, 0, 0, 1);
+            --header-height: 62px;
+        }
+
+        html {
+            font-size: 15px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: var(--bg-primary);
+            color: var(--white);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding-bottom: 120px;
+        }
+
+        a { color: inherit; text-decoration: none; }
+        button { cursor: pointer; font-family: inherit; border: none; background: none; color: inherit; }
+        input { font-family: inherit; border: none; outline: none; background: none; color: inherit; }
+        img { display: block; max-width: 100%; }
+        ul { list-style: none; }
+
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+        .accent-text { color: var(--accent); }
+        .muted-text { color: var(--text-muted); }
+
+        .btn-accent {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            background: var(--accent); color: #fff; font-weight: 700; font-size: 0.85rem;
+            padding: 8px 18px; border-radius: 50px; transition: background var(--transition), transform var(--transition);
+            border: none; letter-spacing: 0.2px;
+        }
+        .btn-accent:hover { background: var(--accent-soft); transform: scale(1.02); }
+
+        /* ==== HEADER ==== */
+        .header {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(8, 8, 8, 0.95); backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-subtle); padding: 10px 0;
+        }
+        .header .container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; }
+        .logo { display: flex; align-items: center; }
+        .logo img { height: 36px; width: auto; object-fit: contain; }
+        .desktop-nav { display: none; align-items: center; gap: 24px; }
+        .desktop-nav a { font-size: 0.85rem; font-weight: 500; color: var(--text-muted); transition: color var(--transition); }
+        .desktop-nav a:hover, .desktop-nav a.active { color: var(--white); }
+        .header-actions { display: flex; align-items: center; gap: 8px; }
+
+        /* ==== SEARCH SUBHEADER ==== */
+        .search-subheader {
+            background: #0e0e0e;
+            padding: 0;
+            border-bottom: 1px solid var(--border-subtle);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease, padding 0.35s ease;
+        }
+        .search-subheader.open {
+            max-height: 70px;
+            padding: 10px 16px;
+        }
+        .search-subheader .search-wrapper {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .search-subheader .search-wrapper img {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            filter: invert(0.6);
+        }
+        .search-subheader .search-wrapper input {
+            width: 100%;
+            padding: 8px 14px 8px 40px;
+            border-radius: 6px;
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-secondary);
+            color: var(--white);
+            font-size: 0.85rem;
+        }
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+        }
+        .search-results.visible { display: block; }
+        .search-results .result-item {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border-subtle);
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .search-results .result-item:hover { background: var(--bg-secondary); }
+
+        /* ==== SUBHEADER (categories) ==== */
+        .subheader {
+            background: #0e0e0e; padding: 8px 0;
+            border-bottom: 1px solid var(--border-subtle);
+            position: sticky; top: var(--header-height); z-index: 99;
+        }
+        .subheader .container { display: flex; gap: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        .subheader .container::-webkit-scrollbar { display: none; }
+        .category-chip {
+            flex-shrink: 0; padding: 6px 16px; border-radius: 6px;
+            background: var(--bg-secondary); border: 1px solid var(--border-subtle);
+            font-size: 0.8rem; font-weight: 600; color: var(--text-muted);
+            transition: all var(--transition); white-space: nowrap; cursor: pointer;
+        }
+        .category-chip:hover, .category-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+        /* ==== MOVIE GRID (3 columns on desktop) ==== */
+        .movie-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 16px 0; }
+        .skeleton-card { aspect-ratio: 2/3; background: var(--bg-surface); border-radius: var(--radius); overflow: hidden; position: relative; border: 1px solid var(--border-subtle); }
+        .skeleton-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent); animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+        .movie-card { background: var(--bg-surface); border-radius: var(--radius); overflow: hidden; transition: transform var(--transition), box-shadow var(--transition); cursor: pointer; border: 1px solid var(--border-subtle); aspect-ratio: 2/3; display: flex; flex-direction: column; }
+        .movie-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+        .movie-card .poster { flex: 1; position: relative; background: var(--bg-secondary); overflow: hidden; }
+        .movie-card .poster img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+        .movie-card:hover .poster img { transform: scale(1.04); }
+        .movie-card .price-tag { position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); color: var(--accent); font-size: 0.75rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(199,21,21,0.5); z-index: 2; }
+        .movie-card .badge { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.7); color: #fff; font-size: 0.6rem; font-weight: 700; padding: 2px 6px; border-radius: 6px; border: 1px solid var(--border-subtle); z-index: 2; }
+        .movie-card .info { padding: 8px 10px; background: rgba(0,0,0,0.3); border-top: 1px solid var(--border-subtle); }
+        .movie-card .info h3 { font-size: 0.85rem; font-weight: 700; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--white); text-transform: uppercase; letter-spacing: 0.3px; }
+
+        /* ==== SECTIONS ==== */
+        .page-section { display: none; animation: fadeUp 0.3s ease; padding: 4px 0 20px; }
+        .page-section.active { display: block; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        .section-title { font-size: 1.2rem; font-weight: 700; margin: 16px 0 12px; letter-spacing: -0.3px; }
+        .section-title .accent-text { color: var(--accent); }
+
+        /* ==== MOVIE DETAIL ==== */
+        .movie-detail { display: none; padding: 16px 0 40px; animation: fadeUp 0.35s ease; }
+        .movie-detail.active { display: block; }
+        .detail-back { display: inline-flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: 0.85rem; font-weight: 500; margin-bottom: 16px; transition: color var(--transition); cursor: pointer; }
+        .detail-back:hover { color: var(--white); }
+        .detail-layout { display: grid; gap: 24px; }
+        .detail-poster { aspect-ratio: 2/3; border-radius: var(--radius); background: var(--bg-secondary); overflow: hidden; border: 1px solid var(--border-subtle); max-width: 320px; margin: 0 auto; width: 100%; }
+        .detail-poster img { width: 100%; height: 100%; object-fit: cover; }
+        .detail-info h2 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; text-transform: uppercase; }
+        .detail-info .tags { display: flex; flex-wrap: wrap; gap: 8px; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px; }
+        .detail-info .tags span { display: flex; align-items: center; gap: 4px; }
+        .detail-info .tags .dot { color: var(--text-muted); opacity: 0.4; }
+        .detail-info .description { color: var(--text-muted); font-size: 0.85rem; line-height: 1.7; margin-bottom: 16px; max-width: 600px; }
+        .detail-info .detail-price { font-size: 1.3rem; font-weight: 800; color: var(--accent); margin-bottom: 20px; }
+        .detail-info .detail-price small { font-size: 0.8rem; font-weight: 400; color: var(--text-muted); }
+        .detail-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+        .detail-actions .btn-accent { font-size: 0.95rem; padding: 12px 32px; flex: 1; min-width: 160px; }
+
+        /* ==== PLAYER OVERLAY ==== */
+        .player-overlay { position: fixed; inset: 0; z-index: 1000; background: #000; display: none; flex-direction: column; }
+        .player-overlay.active { display: flex; }
+        .player-container { flex: 1; display: flex; align-items: center; justify-content: center; background: #000; position: relative; min-height: 0; }
+        .player-placeholder { width: 100%; max-width: 900px; aspect-ratio: 16/9; background: var(--bg-secondary); border-radius: var(--radius-sm); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; border: 1px solid var(--border-subtle); margin: 16px; }
+        .player-placeholder .big-icon { font-size: 4rem; color: var(--accent); margin-bottom: 12px; }
+        .player-placeholder h3 { font-weight: 700; font-size: 1.2rem; margin-bottom: 4px; }
+        .player-placeholder p { color: var(--text-muted); font-size: 0.9rem; }
+        .player-controls { background: rgba(8,8,8,0.95); backdrop-filter: blur(8px); padding: 12px 16px 16px; border-top: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 8px; }
+        .player-controls .progress-row { display: flex; align-items: center; gap: 12px; font-size: 0.75rem; color: var(--text-muted); }
+        .player-controls .progress-track { flex: 1; height: 4px; background: rgba(255,255,255,0.15); border-radius: 4px; position: relative; cursor: pointer; }
+        .player-controls .progress-track .fill { height: 100%; width: 37%; background: var(--accent); border-radius: 4px; transition: width 0.2s ease; }
+        .player-controls .progress-track .handle { position: absolute; top: 50%; left: 37%; transform: translate(-50%, -50%); width: 12px; height: 12px; background: var(--accent); border-radius: 50%; opacity: 0; transition: opacity var(--transition); }
+        .player-controls .progress-track:hover .handle { opacity: 1; }
+        .player-controls .controls-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .player-controls .controls-row .group { display: flex; align-items: center; gap: 4px; }
+        .player-controls .controls-row button { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: var(--text-muted); transition: color var(--transition), background var(--transition); }
+        .player-controls .controls-row button:hover { color: var(--white); background: rgba(255,255,255,0.06); }
+        .player-close { position: absolute; top: 16px; right: 16px; z-index: 10; width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: var(--white); border: 1px solid var(--border-subtle); }
+        .player-close:hover { background: rgba(255,255,255,0.15); }
+
+        /* ==== BOTTOM NAV ==== */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+            background: rgba(8,8,8,0.96); backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border-subtle);
+            display: flex; justify-content: space-around;
+            padding: 8px 0 6px;
+            height: 60px;
+        }
+        .bottom-nav a {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 2px; font-size: 0.65rem; font-weight: 500; color: var(--text-muted);
+            transition: color var(--transition); padding: 0 12px; min-width: 56px;
+        }
+        .bottom-nav a img {
+            width: 28px; height: 28px; object-fit: contain;
+            filter: invert(0.6); transition: filter var(--transition);
+        }
+        .bottom-nav a:hover img, .bottom-nav a.active img {
+            filter: invert(0) sepia(1) saturate(5) hue-rotate(340deg);
+        }
+        .bottom-nav a:hover, .bottom-nav a.active { color: var(--accent); }
+
+        .toast { position: fixed; bottom: 150px; left: 50%; transform: translateX(-50%); z-index: 500; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 12px 20px; box-shadow: var(--shadow); display: none; align-items: center; gap: 10px; font-size: 0.9rem; max-width: 90%; animation: slideUp 0.3s ease; }
+        .toast.visible { display: flex; }
+        .toast i { font-size: 1.2rem; color: var(--accent); }
+
+        /* ==== RESPONSIVE (3 columns on desktop) ==== */
+        @media (min-width: 600px) { .movie-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; } }
+        @media (min-width: 900px) { .desktop-nav { display: flex; } .bottom-nav { display: none; } body { padding-bottom: 0; } .movie-grid { grid-template-columns: repeat(3, 1fr); } .container { padding: 0 32px; } }
+        @media (min-width: 1200px) { .movie-grid { grid-template-columns: repeat(3, 1fr); } }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+        <div class="container">
+            <div class="logo" id="logoHome">
+                <img src="images/logo-akimark.png" onerror="this.onerror=null; this.src='images/logo-akimark.jpg';" alt="Akimark Logo">
+            </div>
+            <nav class="desktop-nav" id="desktopNav">
+                <a href="home.html">Home</a>
+                <a href="movies.html">Movies</a>
+                <a href="series.html">Series</a>
+                <a href="categories.html">Categories</a>
+                <a href="account.html">Account</a>
+            </nav>
+            <div class="header-actions"></div>
+        </div>
+    </header>
+
+    <!-- ===== SEARCH SUBHEADER ===== -->
+    <div class="search-subheader" id="searchSubheader">
+        <div class="search-wrapper">
+            <img src="images/akimark-search.svg" alt="Search icon">
+            <input type="text" placeholder="Search movies, series..." id="searchInput">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+
+    <!-- ===== SUBHEADER (categories) ===== -->
+    <div class="subheader" id="subheader">
+        <div class="container">
+            <button class="category-chip active" data-category="all">All</button>
+            <button class="category-chip" data-category="indian">Indian</button>
+            <button class="category-chip" data-category="actions">Actions</button>
+            <button class="category-chip" data-category="koreans">Koreans</button>
+            <button class="category-chip" data-category="comedy">Comedy</button>
+            <button class="category-chip" data-category="thriller">Thriller</button>
+            <button class="category-chip" data-category="music">Music</button>
+            <button class="category-chip" data-category="local">Local Movies</button>
+        </div>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="container">
+        <!-- HOME SECTION -->
+        <section class="page-section active" id="pageHome">
+            <!-- Latest Section -->
+            <h2 class="section-title">Latest <span class="accent-text">Films</span></h2>
+            <div id="latestGrid" class="movie-grid"></div>
+            <!-- All Section -->
+            <h2 class="section-title" style="margin-top:24px;">All <span class="accent-text">Films</span></h2>
+            <div id="homeGrid" class="movie-grid"></div>
+        </section>
+
+        <!-- MOVIES SECTION -->
+        <section class="page-section" id="pageMovies">
+            <h2 class="section-title">All <span class="accent-text">Movies</span></h2>
+            <div class="search-bar" style="margin-bottom:16px;">
+                <input type="text" id="movieSearchInput" placeholder="Search movies..." autocomplete="off">
+            </div>
+            <div id="moviesGrid" class="movie-grid"></div>
+        </section>
+
+        <!-- SERIES SECTION -->
+        <section class="page-section" id="pageSeries">
+            <h2 class="section-title">Series <span class="accent-text">Collection</span></h2>
+            <div id="seriesGrid" class="movie-grid"></div>
+        </section>
+
+        <!-- CATEGORIES SECTION -->
+        <section class="page-section" id="pageCategories">
+            <h2 class="section-title">Browse by <span class="accent-text">Category</span></h2>
+            <div id="categoriesGrid" class="movie-grid"></div>
+        </section>
+
+        <!-- MOVIE DETAIL -->
+        <section class="movie-detail" id="movieDetail">
+            <div class="detail-back" id="detailBack">← Back</div>
+            <div class="detail-layout">
+                <div class="detail-poster" id="detailPoster"><img src="" alt="Movie poster"></div>
+                <div class="detail-info">
+                    <h2 id="detailTitle">Movie Title</h2>
+                    <div class="tags" id="detailTags"><span>Drama</span></div>
+                    <p class="description" id="detailDesc">Description...</p>
+                    <div class="detail-price" id="detailPrice">MK 0.00</div>
+                    <div class="detail-actions">
+                        <button class="btn-accent" id="detailWatchBtn">▶ WATCH NOW</button>
+                        <button class="btn-secondary" id="detailBackBtn">← Back</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ===== PLAYER OVERLAY ===== -->
+    <div class="player-overlay" id="playerOverlay">
+        <button class="player-close" id="closePlayer">×</button>
+        <div class="player-container"><div class="player-placeholder"><span class="big-icon">▶</span><h3>Now Playing</h3><p id="playerMovieTitle">Movie Title</p></div></div>
+        <div class="player-controls">
+            <div class="progress-row"><span id="currentTime">0:00</span><div class="progress-track" id="progressTrack"><div class="fill" id="progressFill" style="width:37%;"></div><div class="handle" id="progressHandle"></div></div><span id="totalDuration">2:14</span></div>
+            <div class="controls-row">
+                <div class="group"><button id="playPauseBtn">⏸</button><button id="volumeBtn">🔊</button></div>
+                <div class="group"><button id="fullscreenBtn">⛶</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== BOTTOM NAV ===== -->
+    <nav class="bottom-nav" id="bottomNav">
+        <a href="home.html" class="active"><img src="images/akimark-home.svg" alt="Home"><span>Home</span></a>
+        <a href="#" id="searchNavBtn"><img src="images/akimark-search.svg" alt="Search"><span>Search</span></a>
+        <a href="movies.html"><img src="images/akimark-movies.svg" alt="Movies"><span>Movies</span></a>
+        <a href="account.html"><img src="images/akimark-account.svg" alt="Account"><span>Account</span></a>
+    </nav>
+
+    <!-- ===== TOAST ===== -->
+    <div class="toast" id="toast"><span id="toastMsg">Action completed</span></div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="javascript.js/supabase.js"></script>
+    <script src="javascript.js/home.js"></script>
+</body>
+</html>
