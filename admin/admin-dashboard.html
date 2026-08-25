@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Admin Dashboard — Akimark</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <style>
+        :root {
+            --bg-base: #0B0F19;
+            --bg-surface: #111827;
+            --bg-input: #1F2937;
+            --bg-input-hover: #374151;
+            --text-main: #F9FAFB;
+            --text-muted: #9CA3AF;
+            --border-color: #1F2937;
+            --border-focus: #374151;
+            --accent-primary: #E11D48;
+            --accent-hover: #BE123C;
+            --green-success: #22C55E;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --sidebar-width: 250px;
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-size: 0.8rem; /* Reduced base font */
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .admin-header {
+            background: #000;
+            border-bottom: 1px solid var(--border-color);
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .admin-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .hamburger-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        .hamburger-btn:hover {
+            color: var(--text-main);
+            background: rgba(255,255,255,0.1);
+        }
+        .admin-logo img {
+            height: 28px;
+            width: auto;
+            border-radius: 4px;
+        }
+        .admin-name {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Sidebar */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1001;
+            display: none;
+        }
+        .sidebar-overlay.visible {
+            display: block;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: var(--sidebar-width);
+            background: #000;
+            border-right: 1px solid var(--border-color);
+            z-index: 1002;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            padding: 20px 16px;
+        }
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .sidebar-header span {
+            font-weight: 700;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .close-btn:hover {
+            color: var(--text-main);
+        }
+        .sidebar-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar-links li {
+            margin-bottom: 4px;
+        }
+        .sidebar-links a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .sidebar-links a:hover {
+            background: var(--bg-input);
+            color: var(--text-main);
+        }
+        .sidebar-links a.active {
+            background: rgba(225,29,72,0.1);
+            color: var(--accent-primary);
+        }
+        .sidebar-links a.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 20%;
+            height: 60%;
+            width: 3px;
+            background: var(--accent-primary);
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 900px;
+            margin: 16px auto;
+            padding: 0 16px;
+        }
+
+        /* Welcome Card */
+        .welcome-card {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        .welcome-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--bg-input);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .welcome-avatar i {
+            font-size: 1.5rem;
+            color: var(--accent-primary);
+        }
+        .welcome-text h1 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0 0 4px;
+        }
+        .welcome-text p {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin: 0;
+        }
+
+        /* Stats Grid (Facebook style) */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .stat-box {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+        .stat-box-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .stat-box-header .label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stat-box-header i {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .stat-box-header i:hover {
+            color: var(--text-main);
+        }
+        .stat-box-value {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+        .stat-box-value.currency {
+            color: var(--accent-primary);
+        }
+        .stat-box-value.green {
+            color: var(--green-success);
+        }
+        .stat-box-sub {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Available Balance Big Card */
+        .balance-card {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .balance-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .balance-amount {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--green-success);
+            margin-bottom: 16px;
+        }
+        .balance-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .withdraw-btn {
+            padding: 10px 20px;
+            background: var(--accent-primary);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .withdraw-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        /* Films Table */
+        .films-section {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            border: 1px solid var(--border-color);
+        }
+        .films-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .films-section-header h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        .films-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .films-table th, .films-table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.75rem;
+        }
+        .films-table th {
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 2px;
+        }
+        .action-btn.delete:hover {
+            color: #ff4d6d;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .films-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="admin-header-left">
+            <button class="hamburger-btn" id="hamburgerBtn"><i class="bi bi-list"></i></button>
+            <div class="admin-logo">
+                <img src="../images/logo-akimark.png" onerror="this.style.display='none'; document.getElementById('logoText').style.display='block';" alt="Akimark">
+                <span id="logoText" style="display:none; font-weight:800; font-size:0.9rem;">Aki<span style="color:var(--accent-primary)">MARK</span></span>
+            </div>
+        </div>
+        <span id="adminNameBadge" class="admin-name">Hi, Admin</span>
+    </header>
+
+    <!-- Sidebar -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span>Main Menu</span>
+            <button class="close-btn" id="closeSidebar"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <ul class="sidebar-links">
+            <li><a href="admin-dashboard.html" class="active"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li>
+            <li><a href="admin-manage.html"><i class="bi bi-cloud-arrow-up-fill"></i> Upload Film</a></li>
+            <li><a href="admin-account.html"><i class="bi bi-gear-fill"></i> Settings</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Welcome Card -->
+        <div class="welcome-card">
+            <div class="welcome-avatar"><i class="bi bi-person-fill"></i></div>
+            <div class="welcome-text">
+                <h1>Welcome back, <span id="adminNameWelcome">Admin</span></h1>
+                <p>Ready to manage your films?</p>
+            </div>
+        </div>
+
+        <!-- Stats Grid (Facebook style) -->
+        <div class="stats-grid">
+            <!-- Today Earning -->
+            <div class="stat-box">
+                <div class="stat-box-header">
+                    <span class="label">Today Earning</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="stat-box-value currency" id="todayEarning">MWK 0.00</div>
+                <div class="stat-box-sub">Today's income</div>
+            </div>
+            <!-- Pending Withdraw -->
+            <div class="stat-box">
+                <div class="stat-box-header">
+                    <span class="label">Pending Withdraw</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="stat-box-value" id="pendingWithdraw">MWK 0.00</div>
+                <div class="stat-box-sub">Awaiting payment</div>
+            </div>
+            <!-- Transactions -->
+            <div class="stat-box">
+                <div class="stat-box-header">
+                    <span class="label">Transactions</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="stat-box-value" id="transactions">0</div>
+                <div class="stat-box-sub">Total count</div>
+            </div>
+            <!-- Net Followers -->
+            <div class="stat-box">
+                <div class="stat-box-header">
+                    <span class="label">Net Followers</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="stat-box-value green" id="netFollowers">0</div>
+                <div class="stat-box-sub">Fans watching</div>
+            </div>
+        </div>
+
+        <!-- Available Balance Big Card -->
+        <div class="balance-card">
+            <div class="balance-label">Available Balance</div>
+            <div class="balance-amount" id="availableBalance">MWK 0.00</div>
+            <div class="balance-actions">
+                <button class="withdraw-btn" id="withdrawBtn"><i class="bi bi-cash-stack me-1"></i> Withdraw</button>
+            </div>
+        </div>
+
+        <!-- Films Section -->
+        <div class="films-section">
+            <div class="films-section-header">
+                <h3><i class="bi bi-film me-2"></i>Your Films & Earnings</h3>
+            </div>
+            <table class="films-table" id="filmsTable">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Episode</th>
+                        <th>Price</th>
+                        <th>Earnings</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="filmsTableBody"></tbody>
+            </table>
+            <div id="noFilms" style="display:none; text-align:center; color:var(--text-muted); padding:20px;">No films uploaded yet.</div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../javascript.js/supabase.js"></script>
+    <script src="admin-dashboard.js"></script>
+    
+    <!-- UI Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var sidebar = document.getElementById('sidebar');
+            var overlay = document.getElementById('sidebarOverlay');
+            document.getElementById('hamburgerBtn').addEventListener('click', function() {
+                sidebar.classList.add('open');
+                overlay.classList.add('visible');
+            });
+            document.getElementById('closeSidebar').addEventListener('click', function() {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('visible');
+            });
+            overlay.addEventListener('click', function() {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('visible');
+            });
+            
+            // Withdraw button
+            document.getElementById('withdrawBtn').addEventListener('click', function() {
+                alert('Withdrawal request sent! This will be processed within 24 hours.');
+            });
+        });
+    </script>
+</body>
+</html>
