@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f0f0f;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .login-container {
+            background: #1a1a1a;
+            padding: 30px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #e63946;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #333;
+            border-radius: 6px;
+            background: #222;
+            color: #fff;
+            font-size: 1rem;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            background: #e63946;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #c1121f;
+        }
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        #otpSection {
+            display: none;
+        }
+        .message {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+        .error { color: #ff4d4d; }
+        .success { color: #4caf50; }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #fff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Super Admin Login</h2>
+        <div id="step1">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="admin@example.com" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+            <button id="loginBtn" onclick="sendOTP()">Login</button>
+        </div>
+        <div id="otpSection">
+            <div class="form-group">
+                <label>Enter OTP</label>
+                <input type="text" id="otp" placeholder="6-digit code" maxlength="6" required>
+            </div>
+            <button id="verifyBtn" onclick="verifyOTP()">Verify & Login</button>
+        </div>
+        <div id="message" class="message"></div>
+    </div>
+    <script src="super-admin.js"></script>
+</body>
+</html>
