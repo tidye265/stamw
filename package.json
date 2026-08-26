@@ -1,9 +1,0 @@
-
-{
-  "name": "akimark-register",
-  "version": "1.0.0",
-  "dependencies": {
-    "@supabase/supabase-js": "^2.42.0",
-    "bcryptjs": "^2.4.3"
-  }
-}
