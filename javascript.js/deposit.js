@@ -90,7 +90,7 @@
 
     async function verifyTransaction(txRef) {
         try {
-            var response = await fetch('https://jnqwvmxuieeelvukhcsq.supabase.co/functions/v1/deposit-api', {
+            var response = await fetch('https://jnqwvmxuieeelvukhcsq.supabase.co/functions/v1/transaction-service', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
