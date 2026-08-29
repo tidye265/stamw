@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Video View</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: #111;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #222;
+        }
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #e63946, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .back-btn {
+            background: #222;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+        .back-btn:hover {
+            background: #333;
+        }
+
+        /* Main */
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 0 16px;
+        }
+
+        /* Video Player */
+        .video-wrapper {
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        .video-wrapper video {
+            width: 100%;
+            display: block;
+            max-height: 500px;
+        }
+
+        /* Film Info */
+        .film-info {
+            background: #151515;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .film-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .film-meta {
+            color: #888;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .film-description {
+            color: #aaa;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-top: 8px;
+        }
+
+        /* Download Button */
+        .download-btn {
+            background: #e63946;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: background 0.2s;
+        }
+        .download-btn:hover {
+            background: #c1121f;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #888;
+        }
+
+        /* Error */
+        .error-box {
+            text-align: center;
+            padding: 20px;
+            background: #2a1a1a;
+            color: #ff4d4d;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">AKIMARK TEST VIEW</div>
+        <a href="test-film.html" class="back-btn">← Back to Uploads</a>
+    </header>
+
+    <!-- Main -->
+    <div class="container">
+        <div id="loading" class="loading">Loading video...</div>
+        <div id="errorBox" style="display:none;" class="error-box"></div>
+
+        <div id="content" style="display:none;">
+            <!-- Video Player -->
+            <div class="video-wrapper">
+                <video id="videoPlayer" controls autoplay playsinline></video>
+            </div>
+
+            <!-- Film Info -->
+            <div class="film-info">
+                <div class="film-title" id="filmTitle"></div>
+                <div class="film-meta" id="filmMeta"></div>
+                <div class="film-description" id="filmDescription"></div>
+                <button class="download-btn" id="downloadBtn">Download Video</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../javascript.js/supabase.js"></script>
+    <script>
+        (function() {
+            'use strict';
+
+            const SUPABASE_URL = window.SUPABASE_URL;
+            const ADMIN_TOKEN = localStorage.getItem('akmark_admin_token');
+            if (!ADMIN_TOKEN) {
+                window.location.href = 'admin-login.html';
+                return;
+            }
+
+            // Get film_id from URL
+            const params = new URLSearchParams(window.location.search);
+            const filmId = params.get('id');
+            if (!filmId) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('errorBox').style.display = 'block';
+                document.getElementById('errorBox').textContent = 'Missing film ID.';
+                return;
+            }
+
+            // Load film
+            async function loadFilm() {
+                try {
+                    const res = await fetch(`${SUPABASE_URL}/functions/v1/test-view-api?action=get&film_id=${filmId}`, {
+                        headers: {
+                            'Authorization': 'Bearer ' + ADMIN_TOKEN
+                        }
+                    });
+                    const data = await res.json();
+                    if (!res.ok || !data.success) {
+                        throw new Error(data.error || 'Failed to load film');
+                    }
+
+                    const film = data.film;
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('content').style.display = 'block';
+
+                    // Set video source
+                    const video = document.getElementById('videoPlayer');
+                    video.src = film.video_url || '';
+                    video.load();
+
+                    // Set info
+                    document.getElementById('filmTitle').textContent = film.title || 'Untitled';
+                    const metaParts = [];
+                    if (film.category) metaParts.push(film.category);
+                    if (film.genre) metaParts.push(film.genre);
+                    if (film.year) metaParts.push(film.year);
+                    if (film.price) metaParts.push('MK ' + Number(film.price).toFixed(2));
+                    document.getElementById('filmMeta').textContent = metaParts.join(' • ');
+                    document.getElementById('filmDescription').textContent = film.description || 'No description.';
+
+                    // Download button
+                    document.getElementById('downloadBtn').onclick = function() {
+                        window.open(film.video_url, '_blank');
+                    };
+                } catch (err) {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('errorBox').style.display = 'block';
+                    document.getElementById('errorBox').textContent = err.message;
+                }
+            }
+
+            loadFilm();
+        })();
+    </script>
+</body>
+</html>
