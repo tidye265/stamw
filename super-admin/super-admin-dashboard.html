@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* HEADER */
+        .header {
+            background: rgba(17, 17, 17, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #222;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #e63946, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+        .hamburger {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* SIDEBAR */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+        }
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100vh;
+            background: #111;
+            z-index: 1000;
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            padding-top: 20px;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.5);
+        }
+        .sidebar.open {
+            right: 0;
+        }
+        .sidebar-header {
+            padding: 0 20px 15px;
+            border-bottom: 1px solid #222;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #e63946, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .sidebar-item {
+            padding: 12px 20px;
+            color: #ccc;
+            text-decoration: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, padding-left 0.2s;
+            display: block;
+            border-left: 3px solid transparent;
+        }
+        .sidebar-item:hover {
+            background: #222;
+            color: #fff;
+            padding-left: 25px;
+        }
+        .sidebar-item.active {
+            color: #fff;
+            border-left: 3px solid #e63946;
+            background: #1a1a1a;
+        }
+        .sidebar-item.logout {
+            color: #ff4d4d;
+            margin-top: auto;
+            border-top: 1px solid #222;
+        }
+        .sidebar-item.logout:hover {
+            background: #2a1111;
+        }
+
+        /* MAIN */
+        .container {
+            padding: 15px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .greeting {
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff, #888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .greeting span {
+            background: linear-gradient(135deg, #e63946, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* SEARCH BAR */
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-bottom: 15px;
+        }
+        .search-bar i {
+            color: #888;
+            margin-right: 8px;
+        }
+        .search-bar input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            width: 100%;
+            font-size: 0.9rem;
+        }
+        .search-bar input::placeholder {
+            color: #555;
+        }
+
+        /* STATS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: rgba(17, 17, 17, 0.8);
+            border-radius: 8px;
+            padding: 12px;
+            border-left: 3px solid #e63946;
+            transition: transform 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+        .stat-card h3 {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stat-card .value {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        /* GRAPH */
+        .graph-wrap {
+            background: rgba(17, 17, 17, 0.8);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #222;
+        }
+        canvas {
+            max-height: 200px;
+        }
+
+        /* SECTIONS */
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* SKELETON */
+        .skeleton {
+            background: linear-gradient(90deg, #111 25%, #222 50%, #111 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.2s infinite;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* TABLES */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(17, 17, 17, 0.8);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #222;
+        }
+        .data-table th, .data-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #222;
+        }
+        .data-table th {
+            background: #1a1a1a;
+            font-size: 0.8rem;
+            color: #888;
+            text-transform: uppercase;
+        }
+        .data-table td {
+            font-size: 0.85rem;
+        }
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        .data-table tr:hover {
+            background: #1a1a1a;
+        }
+        .data-table .id-col {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: #aaa;
+        }
+
+        /* BUTTONS */
+        .btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            color: #fff;
+            margin-right: 4px;
+            transition: opacity 0.2s;
+        }
+        .btn-danger { background: #e63946; }
+        .btn-warn { background: #f0ad4e; }
+        .btn-edit { background: #2196f3; }
+        .btn:hover { opacity: 0.8; }
+
+        /* MODAL */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.open {
+            display: flex;
+        }
+        .modal-content {
+            background: #111;
+            border-radius: 8px;
+            padding: 20px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid #333;
+        }
+        .modal-content h3 {
+            margin-bottom: 15px;
+            color: #e63946;
+        }
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            background: #222;
+            color: #fff;
+        }
+        .modal-content select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            background: #222;
+            color: #fff;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 4px;
+            z-index: 3000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+        .toast.success { border-left: 4px solid #4caf50; }
+        .toast.error { border-left: 4px solid #e63946; }
+
+        /* ERROR */
+        .error-msg {
+            text-align: center;
+            padding: 15px;
+            background: #2a1a1a;
+            color: #ff4d4d;
+            border-radius: 4px;
+            margin: 20px auto;
+            max-width: 400px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .data-table { font-size: 0.75rem; }
+            .data-table th, .data-table td { padding: 6px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Overlay -->
+    <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">AKIMARK</div>
+        <a class="sidebar-item" data-section="dashboard" onclick="navigate('dashboard')">Dashboard</a>
+        <a class="sidebar-item" data-section="logins" onclick="navigate('logins')">Logins Details</a>
+        <a class="sidebar-item" data-section="users" onclick="navigate('users')">Users</a>
+        <a class="sidebar-item" data-section="adminUsers" onclick="navigate('adminUsers')">Admin Users</a>
+        <a class="sidebar-item logout" onclick="logout()">Logout</a>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">Akimark</div>
+        <button class="hamburger" onclick="toggleMenu()">☰</button>
+    </header>
+
+    <!-- Main -->
+    <main class="container">
+        <!-- Greeting -->
+        <div class="greeting" id="greeting">Hello 👋 <span>Super Admin</span></div>
+
+        <!-- Loading indicator (skeleton) -->
+        <div id="skeletonLoader" style="display:none;">
+            <div class="skeleton" style="height:150px;"></div>
+            <div class="skeleton" style="height:300px;"></div>
+        </div>
+
+        <!-- Error Box -->
+        <div id="errorBox" style="display:none;"></div>
+
+        <!-- Sections -->
+        <!-- Dashboard -->
+        <div id="dashboardSection" class="section active">
+            <div class="stats-grid">
+                <div class="stat-card"><h3>Total Admins</h3><div class="value" id="totalAdmins">0</div></div>
+                <div class="stat-card"><h3>Total Users</h3><div class="value" id="totalUsers">0</div></div>
+                <div class="stat-card"><h3>Admin Bal</h3><div class="value" id="adminBalance">0.00</div></div>
+                <div class="stat-card"><h3>User Bal</h3><div class="value" id="userBalance">0.00</div></div>
+                <div class="stat-card"><h3>All Movies</h3><div class="value" id="allMovies">0</div></div>
+                <div class="stat-card"><h3>Admin Movies</h3><div class="value" id="adminMovies">0</div></div>
+            </div>
+            <div class="graph-wrap">
+                <h3 style="font-size:0.9rem; color:#888; margin-bottom:10px;">Growth Overview</h3>
+                <canvas id="growthChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Logins -->
+        <div id="loginsSection" class="section">
+            <h3 style="margin-bottom:15px;">Login Sessions</h3>
+            <div class="search-bar">
+                <i class="bi bi-search"></i>
+                <input type="text" id="searchLogins" placeholder="Search by token, IP, device..." oninput="filterLogins()">
+            </div>
+            <table class="data-table">
+                <thead><tr><th>Token</th><th>IP</th><th>Device</th><th>Last Seen</th><th>Status</th></tr></thead>
+                <tbody id="loginsBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Users -->
+        <div id="usersSection" class="section">
+            <h3 style="margin-bottom:15px;">All Users</h3>
+            <div class="search-bar">
+                <i class="bi bi-search"></i>
+                <input type="text" id="searchUsers" placeholder="Search by name, phone, ID..." oninput="filterUsers()">
+            </div>
+            <table class="data-table">
+                <thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Balance</th><th>Joined</th><th>Actions</th></tr></thead>
+                <tbody id="usersBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Admin Users -->
+        <div id="adminUsersSection" class="section">
+            <h3 style="margin-bottom:15px;">Admin Users & Films</h3>
+            <div class="search-bar">
+                <i class="bi bi-search"></i>
+                <input type="text" id="searchAdmins" placeholder="Search by name, email, ID..." oninput="filterAdmins()">
+            </div>
+            <table class="data-table">
+                <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Balance</th><th>Films</th><th>Actions</th></tr></thead>
+                <tbody id="adminsBody"></tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Balance Adjustment Modal -->
+    <div id="balanceModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Adjust Balance</h3>
+            <label style="display:block; color:#888; margin-bottom:5px;">Current Balance: <span id="currentBalance" style="color:#fff; font-weight:bold;">0.00</span></label>
+            <select id="balanceOperation">
+                <option value="add">Add (+) </option>
+                <option value="subtract">Subtract (-)</option>
+                <option value="set">Set (=) </option>
+            </select>
+            <input type="number" id="balanceAmount" placeholder="Amount (e.g., 5000)" step="0.01">
+            <div class="modal-actions">
+                <button class="btn btn-edit" onclick="submitBalanceAdjust()">Confirm</button>
+                <button class="btn btn-warn" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../javascript.js/supabase.js"></script>
+    <script src="super-admin-dashboard.js"></script>
+</body>
+</html>
