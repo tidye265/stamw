@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Film Upload — Akimark</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: #111;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #222;
+        }
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #e63946, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .back-btn {
+            background: #222;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+        .back-btn:hover {
+            background: #333;
+        }
+
+        /* Main */
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 0 16px;
+        }
+
+        /* Upload Card */
+        .upload-card {
+            background: #151515;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #222;
+            margin-bottom: 20px;
+        }
+        .upload-card h2 {
+            font-size: 1rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .upload-card h2 i {
+            color: #e63946;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-label {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            background: #1c1c1c;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 0.9rem;
+            transition: border 0.2s;
+        }
+        .form-control:focus {
+            border-color: #e63946;
+            outline: none;
+        }
+
+        /* File Input */
+        .file-drop {
+            border: 2px dashed #333;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .file-drop:hover,
+        .file-drop.dragover {
+            border-color: #e63946;
+            background: rgba(230, 57, 70, 0.05);
+        }
+        .file-drop i {
+            font-size: 1.6rem;
+            color: #888;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .file-drop p {
+            color: #888;
+            font-size: 0.85rem;
+        }
+        .file-drop input {
+            display: none;
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: #e63946;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: background 0.2s;
+        }
+        .btn-submit:hover {
+            background: #c1121f;
+        }
+        .btn-submit:disabled {
+            background: #444;
+            cursor: not-allowed;
+        }
+
+        /* Progress */
+        .progress-wrap {
+            margin-top: 16px;
+            display: none;
+        }
+        .progress-bar-bg {
+            height: 8px;
+            background: #1c1c1c;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #e63946, #ff6b6b);
+            transition: width 0.3s;
+        }
+        .progress-text {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 6px;
+            text-align: center;
+        }
+
+        /* Films List */
+        .films-list {
+            background: #151515;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #222;
+        }
+        .films-list h2 {
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+        .film-item {
+            padding: 10px;
+            border-bottom: 1px solid #222;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .film-item:last-child {
+            border-bottom: none;
+        }
+        .film-info {
+            flex: 1;
+        }
+        .film-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        .film-meta {
+            color: #888;
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+        .film-status {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: #1c1c1c;
+            border: 1px solid #333;
+        }
+        .film-status.ready {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: #22c55e;
+            color: #22c55e;
+        }
+        .film-status.failed {
+            background: rgba(230, 57, 70, 0.2);
+            border-color: #e63946;
+            color: #e63946;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #111;
+            border: 1px solid #333;
+            padding: 10px 20px;
+            border-radius: 6px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+            pointer-events: none;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+        .toast.success {
+            border-left: 4px solid #22c55e;
+        }
+        .toast.error {
+            border-left: 4px solid #e63946;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">AKIMARK TEST</div>
+        <a href="admin-dashboard.html" class="back-btn">← Back</a>
+    </header>
+
+    <!-- Main -->
+    <div class="container">
+        <!-- Upload Card -->
+        <div class="upload-card">
+            <h2><i class="bi bi-cloud-arrow-up"></i> Upload Test Video</h2>
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <input type="text" class="form-control" id="title" placeholder="Test Video Title" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" id="description" rows="2" placeholder="Short description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <input type="text" class="form-control" id="category" placeholder="e.g. Test">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Genre</label>
+                    <input type="text" class="form-control" id="genre" placeholder="e.g. Action">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Year</label>
+                    <input type="number" class="form-control" id="year" placeholder="2024" min="1900" max="2100">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Price (MWK)</label>
+                    <input type="number" class="form-control" id="price" placeholder="0.00" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Video File</label>
+                    <div class="file-drop" id="fileDrop">
+                        <i class="bi bi-play-circle"></i>
+                        <p>Drag & drop or click to browse</p>
+                        <input type="file" id="videoFile" accept="video/*" hidden>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit" id="uploadBtn">Upload Test Video</button>
+                <div class="progress-wrap" id="progressWrap">
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+                    <div class="progress-text" id="progressText">Uploading...</div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Films List -->
+        <div class="films-list">
+            <h2><i class="bi bi-film"></i> Uploaded Test Videos</h2>
+            <div id="filmsContainer">
+                <div style="text-align:center; color:#888; padding:16px;">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../javascript.js/supabase.js"></script>
+
+    <script>
+        (function() {
+            'use strict';
+
+            const SUPABASE_URL = window.SUPABASE_URL;
+            const ADMIN_TOKEN = localStorage.getItem('akmark_admin_token');
+            if (!ADMIN_TOKEN) {
+                window.location.href = 'admin-login.html';
+                return;
+            }
+
+            // ===== DOM ELEMENTS =====
+            const form = document.getElementById('uploadForm');
+            const titleInput = document.getElementById('title');
+            const descriptionInput = document.getElementById('description');
+            const categoryInput = document.getElementById('category');
+            const genreInput = document.getElementById('genre');
+            const yearInput = document.getElementById('year');
+            const priceInput = document.getElementById('price');
+            const videoFile = document.getElementById('videoFile');
+            const fileDrop = document.getElementById('fileDrop');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const progressWrap = document.getElementById('progressWrap');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const filmsContainer = document.getElementById('filmsContainer');
+            const toast = document.getElementById('toast');
+
+            // ===== TOAST =====
+            function showToast(msg, type = 'success') {
+                toast.textContent = msg;
+                toast.className = 'toast show ' + type;
+                setTimeout(() => toast.classList.remove('show'), 3000);
+            }
+
+            // ===== FILE DROP =====
+            fileDrop.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                fileDrop.classList.add('dragover');
+            });
+            fileDrop.addEventListener('dragleave', function() {
+                fileDrop.classList.remove('dragover');
+            });
+            fileDrop.addEventListener('drop', function(e) {
+                e.preventDefault();
+                fileDrop.classList.remove('dragover');
+                if (e.dataTransfer.files.length > 0) {
+                    videoFile.files = e.dataTransfer.files;
+                    fileDrop.querySelector('p').textContent = e.dataTransfer.files[0].name;
+                }
+            });
+            fileDrop.addEventListener('click', function() {
+                videoFile.click();
+            });
+            videoFile.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    fileDrop.querySelector('p').textContent = this.files[0].name;
+                }
+            });
+
+            // ===== UPLOAD =====
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const file = videoFile.files[0];
+                if (!file) {
+                    showToast('Please select a video file.', 'error');
+                    return;
+                }
+
+                uploadBtn.disabled = true;
+                uploadBtn.textContent = 'Uploading...';
+                progressWrap.style.display = 'block';
+                progressFill.style.width = '5%';
+                progressText.textContent = 'Preparing...';
+
+                try {
+                    // Step 1: Initiate upload via test-film-api
+                    const initResponse = await fetch(`${SUPABASE_URL}/functions/v1/test-film-api`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + ADMIN_TOKEN
+                        },
+                        body: JSON.stringify({
+                            action: 'initiate',
+                            title: titleInput.value,
+                            description: descriptionInput.value,
+                            category: categoryInput.value,
+                            genre: genreInput.value,
+                            year: parseInt(yearInput.value) || new Date().getFullYear(),
+                            price: parseFloat(priceInput.value) || 0,
+                            file_name: file.name,
+                            file_size: file.size,
+                            file_type: file.type
+                        })
+                    });
+
+                    const initData = await initResponse.json();
+                    if (!initResponse.ok || !initData.success) {
+                        throw new Error(initData.error || 'Failed to initiate upload');
+                    }
+
+                    const { uploadUrl, filmId, fileId } = initData;
+                    progressFill.style.width = '15%';
+                    progressText.textContent = 'Uploading video...';
+
+                    // Step 2: Upload video to presigned URL (Tenantbox)
+                    const uploadRes = await fetch(uploadUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': file.type
+                        },
+                        body: file
+                    });
+
+                    if (!uploadRes.ok) {
+                        throw new Error('Video upload failed: ' + uploadRes.status);
+                    }
+
+                    progressFill.style.width = '70%';
+                    progressText.textContent = 'Finalizing...';
+
+                    // Step 3: Confirm upload
+                    const confirmRes = await fetch(`${SUPABASE_URL}/functions/v1/test-film-api`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + ADMIN_TOKEN
+                        },
+                        body: JSON.stringify({
+                            action: 'confirm',
+                            film_id: filmId,
+                            file_id: fileId
+                        })
+                    });
+
+                    const confirmData = await confirmRes.json();
+                    if (!confirmRes.ok || !confirmData.success) {
+                        throw new Error(confirmData.error || 'Failed to confirm upload');
+                    }
+
+                    progressFill.style.width = '100%';
+                    progressText.textContent = '✅ Upload complete!';
+                    showToast('Test video uploaded successfully!');
+
+                    // Reset form
+                    form.reset();
+                    fileDrop.querySelector('p').textContent = 'Drag & drop or click to browse';
+
+                    // Reload list
+                    loadFilms();
+                } catch (err) {
+                    progressFill.style.width = '0%';
+                    progressText.textContent = '❌ ' + err.message;
+                    showToast(err.message, 'error');
+                } finally {
+                    uploadBtn.disabled = false;
+                    uploadBtn.textContent = 'Upload Test Video';
+                    setTimeout(() => { progressWrap.style.display = 'none'; }, 3000);
+                }
+            });
+
+            // ===== LOAD FILMS =====
+            async function loadFilms() {
+                try {
+                    const res = await fetch(`${SUPABASE_URL}/functions/v1/test-film-api?action=list`, {
+                        headers: {
+                            'Authorization': 'Bearer ' + ADMIN_TOKEN
+                        }
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || 'Failed to load films');
+
+                    filmsContainer.innerHTML = '';
+                    if (data.films.length === 0) {
+                        filmsContainer.innerHTML = '<div style="text-align:center; color:#888; padding:16px;">No test videos uploaded yet.</div>';
+                        return;
+                    }
+
+                    data.films.forEach(film => {
+                        const item = document.createElement('div');
+                        item.className = 'film-item';
+                        item.innerHTML = `
+                            <div class="film-info">
+                                <div class="film-title">${film.title}</div>
+                                <div class="film-meta">${film.category || 'General'} • ${film.genre || 'N/A'} • ${film.year || 'N/A'}</div>
+                            </div>
+                            <span class="film-status ${film.status === 'ready' ? 'ready' : film.status === 'failed' ? 'failed' : ''}">${film.status}</span>
+                        `;
+                        filmsContainer.appendChild(item);
+                    });
+                } catch (err) {
+                    filmsContainer.innerHTML = '<div style="text-align:center; color:#888; padding:16px;">Failed to load films</div>';
+                }
+            }
+
+            // ===== INIT =====
+            loadFilms();
+        })();
+    </script>
+</body>
+</html>
