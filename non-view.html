@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watch - Akimark</title>
+    <style>
+        /* ... same styles as your watch page ... */
+        body { font-family: 'Inter', sans-serif; background: #080808; color: #fff; }
+        .movie-details { max-width: 600px; margin: 20px auto; text-align: center; }
+        .poster img { width: 100%; border-radius: 10px; }
+        .watch-btn { background: #c71515; color: #fff; padding: 15px 30px; border: none; font-size: 1.2rem; border-radius: 8px; margin-top: 20px; cursor: pointer; }
+        #player { margin-top: 20px; width: 100%; max-width: 800px; display: none; }
+        #countdown { color: #a7a7a7; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="movie-details">
+        <img id="poster" class="poster" src="" alt="Poster">
+        <h2 id="title"></h2>
+        <p id="price"></p>
+        <button id="watchBtn" class="watch-btn">WATCH NOW [MK 0]</button>
+        <video id="player" controls></video>
+        <p id="countdown"></p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="javascript.js/supabase.js"></script>
+    <script src="javascript.js/non-view.js"></script>
+</body>
+</html>
