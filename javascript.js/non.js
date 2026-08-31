@@ -277,7 +277,7 @@
                 if (!card) return;
                 var id = card.dataset.id;
                 if (id) {
-                    window.location.href = 'view-film.html?id=' + id;
+                    window.location.href = 'non-view.html?id=' + id;
                 }
             });
         });
