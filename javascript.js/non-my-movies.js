@@ -44,7 +44,7 @@
             const session = await ensureSession();
             const token = session.access_token;
 
-            const res = await fetch(`${SUPABASE_URL}/functions/v1/non-viewing-film-api?action=list_my_views`, {
+            const res = await fetch(`${SUPABASE_URL}/functions/v1/non-get-my-movies-api`, {
                 method: 'GET',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
