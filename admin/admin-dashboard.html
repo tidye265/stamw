@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard — Akimark</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        /* Base styles (same as before) */
+        :root {
+            --bg-base: #0B0F19; --bg-surface: #111827; --bg-input: #1F2937;
+            --text-main: #F9FAFB; --text-muted: #9CA3AF; --border-color: #1F2937;
+            --accent-primary: #E11D48; --accent-hover: #BE123C; --green: #22C55E;
+            --radius-md: 10px; --radius-lg: 14px; --sidebar-width: 250px;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-base); color: var(--text-main); margin: 0; font-size: 0.85rem; }
+        .admin-header { background: #000; border-bottom: 1px solid var(--border-color); padding: 8px 16px; display: flex; justify-content: space-between; align-items: center; }
+        .hamburger-btn { background: transparent; border: none; color: var(--text-muted); font-size: 1.3rem; cursor: pointer; }
+        .admin-logo img { height: 28px; }
+        .admin-name { font-size: 0.7rem; color: var(--text-muted); }
+        .header-logout-btn { background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; margin-left: 8px; }
+        .sidebar { position: fixed; top: 0; left: 0; height: 100%; width: var(--sidebar-width); background: #000; border-right: 1px solid var(--border-color); transform: translateX(-100%); transition: transform 0.3s ease; padding: 16px 12px; z-index: 1002; }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1001; display: none; }
+        .sidebar-overlay.visible { display: block; }
+        .sidebar-links { list-style: none; padding: 0; }
+        .sidebar-links li { margin-bottom: 4px; }
+        .sidebar-links a { display: flex; align-items: center; gap: 10px; color: var(--text-muted); text-decoration: none; padding: 8px 10px; border-radius: var(--radius-md); font-size: 0.75rem; }
+        .sidebar-links a:hover { background: var(--bg-input); }
+        .sidebar-links a.active { background: rgba(225,29,72,0.1); color: var(--accent-primary); }
+        .main-content { max-width: 800px; margin: 10px auto; padding: 0 12px; }
+        .card { background: var(--bg-surface); border-radius: var(--radius-lg); padding: 16px; border: 1px solid var(--border-color); margin-bottom: 16px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
+        .stat-box { background: var(--bg-surface); border-radius: var(--radius-lg); padding: 16px; border: 1px solid var(--border-color); }
+        .stat-box-value { font-size: 1.3rem; font-weight: 800; }
+        .wallet-card { display: flex; justify-content: space-between; align-items: center; }
+        .withdraw-link { padding: 8px 16px; background: var(--accent-primary); color: #fff; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.8rem; }
+        .withdraw-link:hover { background: var(--accent-hover); }
+        .section-toggle { display: none; }
+        .section-toggle.active { display: block; }
+        .myfilms-section, .terms-section { display: none; background: var(--bg-surface); padding: 16px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: 16px; }
+        .myfilms-section.active, .terms-section.active { display: block; }
+        .terms-content { font-size: 0.85rem; color: var(--text-muted); }
+        .terms-content h5 { color: var(--text-main); }
+        .footer { text-align: center; color: var(--text-muted); font-size: 0.7rem; margin-top: 20px; }
+        @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
+    </style>
+</head>
+<body>
+    <header class="admin-header">
+        <div class="admin-header-left">
+            <button class="hamburger-btn" id="hamburgerBtn"><i class="bi bi-list"></i></button>
+            <div class="admin-logo"><img src="../images/logo-akimark.png" onerror="this.style.display='none'; document.getElementById('logoText').style.display='block';" alt="Akimark"><span id="logoText" style="display:none; font-weight:800;">Aki<span style="color:var(--accent-primary)">MARK</span></span></div>
+        </div>
+        <div style="display:flex; align-items:center;">
+            <span id="adminNameBadge" class="admin-name">Hi, Admin</span>
+            <button class="header-logout-btn" id="headerLogoutBtn"><i class="bi bi-box-arrow-right"></i></button>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span>Menu</span>
+            <button class="close-btn" id="closeSidebar"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <ul class="sidebar-links">
+            <li><a href="#" id="dashboardLink" class="active"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li>
+            <li><a href="admin-manage.html"><i class="bi bi-cloud-arrow-up-fill"></i> Upload Film</a></li>
+            <li><a href="#" id="sidebarMyFilmsBtn"><i class="bi bi-film"></i> My Films <span class="badge bg-danger" id="sidebarFilmsCount">0</span></a></li>
+            <li><a href="admin-withdraw.html"><i class="bi bi-cash-stack"></i> Withdraw</a></li>
+            <li><a href="#" id="sidebarTermsBtn"><i class="bi bi-file-text"></i> Terms & Conditions</a></li>
+            <li><a href="admin-account.html"><i class="bi bi-gear-fill"></i> Settings</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <button class="logout-btn" id="sidebarLogoutBtn"><i class="bi bi-box-arrow-right"></i> Logout</button>
+            <div class="powered-by">Powered by <strong>Mo Kondowe</strong></div>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <!-- Dashboard Section -->
+        <div id="dashboardSection" class="section-toggle active">
+            <div class="card welcome-card">
+                <div class="welcome-avatar"><i class="bi bi-person-fill"></i></div>
+                <div><h1>Welcome back, <span id="adminNameWelcome">Admin</span></h1><p>Ready to manage your films?</p></div>
+            </div>
+            <div class="card wallet-card">
+                <div><div class="form-label">Available Balance</div><div id="availableBalance" style="font-size:1.5rem; font-weight:800; color:var(--green);">MWK 0.00</div></div>
+                <a href="admin-withdraw.html" class="withdraw-link"><i class="bi bi-cash-stack"></i> Withdraw</a>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box"><div class="form-label">Total Earnings</div><div id="totalEarnings" style="font-size:1.3rem; font-weight:800; color:var(--accent-primary);">MWK 0.00</div></div>
+                <div class="stat-box"><div class="form-label">Queue</div><div id="queuedEarnings" style="font-size:1.3rem; font-weight:800; color:var(--text-muted);">MWK 0.00</div></div>
+                <div class="stat-box"><div class="form-label">Revenue Fee</div><div id="revenueFee" style="font-size:1.3rem; font-weight:800;">30%</div></div>
+                <div class="stat-box"><div class="form-label">Net Followers</div><div id="netFollowers" style="font-size:1.3rem; font-weight:800; color:var(--green);">0</div></div>
+            </div>
+            <!-- Bar chart -->
+            <div class="card"><div class="chart-title">Earnings Overview</div><div id="earningsChart" style="display:flex; align-items:flex-end; gap:8px; height:100px;"></div></div>
+        </div>
+
+        <!-- My Films Section -->
+        <div id="myfilmsSection" class="myfilms-section">
+            <div class="myfilms-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h3><i class="bi bi-film"></i> My Films & Earnings</h3>
+                <button class="close-tab" id="closeMyFilmsTab"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <table class="table table-dark table-striped">
+                <thead><tr><th>Title</th><th>Episode</th><th>Price</th><th>Earnings</th><th>Actions</th></tr></thead>
+                <tbody id="filmsTableBody"></tbody>
+            </table>
+            <div id="noFilms" style="text-align:center; color:var(--text-muted); padding:16px;">No films uploaded yet.</div>
+        </div>
+
+        <!-- Terms Section -->
+        <div id="termsSection" class="terms-section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h3><i class="bi bi-file-text"></i> Terms & Conditions</h3>
+                <button class="close-tab" id="closeTermsTab"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="terms-content">
+                <h5>Platform Rules</h5>
+                <ul>
+                    <li>Platform fee is <strong>30%</strong> on every transaction.</li>
+                    <li>No illegal videos are allowed.</li>
+                    <li>Follow Akimark on Facebook and WhatsApp for updates.</li>
+                </ul>
+                <p style="margin-top:20px;"><i class="bi bi-lock-fill"></i> Powered by <strong>Mo Kondowe</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal (unchanged) -->
+    <div class="modal-overlay" id="editModalOverlay" style="display:none;">
+        <div class="edit-modal">
+            <button class="close-modal" id="closeEditModal"><i class="bi bi-x-lg"></i></button>
+            <h3><i class="bi bi-pencil-square"></i> Edit Film</h3>
+            <form id="editFilmForm">
+                <input type="hidden" id="editFilmId">
+                <label class="form-label">Title</label><input type="text" class="form-control" id="editTitle" required>
+                <label class="form-label">Genre</label><input type="text" class="form-control" id="editGenre" required>
+                <label class="form-label">Year</label><input type="number" class="form-control" id="editYear" required>
+                <label class="form-label">Price (MWK)</label><input type="number" class="form-control" id="editPrice" required>
+                <label class="form-label">Category</label><input type="text" class="form-control" id="editCategory" required>
+                <label class="form-label">Description</label><textarea class="form-control" id="editDescription" rows="2"></textarea>
+                <button type="submit" class="btn-save">Save Changes</button>
+                <button type="button" class="btn-cancel" id="cancelEditModal">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="footer"><i class="bi bi-lock-fill"></i> Powered by <strong>Mo Kondowe</strong></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../javascript.js/supabase.js"></script>
+    <script src="admin-dashboard.js"></script>
+    <script>
+        // UI Scripts (sidebar toggle, section switching)
+        document.addEventListener('DOMContentLoaded', function() {
+            var sidebar = document.getElementById('sidebar');
+            var overlay = document.getElementById('sidebarOverlay');
+            document.getElementById('hamburgerBtn').addEventListener('click', function() { sidebar.classList.add('open'); overlay.classList.add('visible'); });
+            document.getElementById('closeSidebar').addEventListener('click', function() { sidebar.classList.remove('open'); overlay.classList.remove('visible'); });
+            overlay.addEventListener('click', function() { sidebar.classList.remove('open'); overlay.classList.remove('visible'); });
+
+            var dashboardSection = document.getElementById('dashboardSection');
+            var myfilmsSection = document.getElementById('myfilmsSection');
+            var termsSection = document.getElementById('termsSection');
+
+            document.getElementById('sidebarMyFilmsBtn').addEventListener('click', function(e) {
+                e.preventDefault(); sidebar.classList.remove('open'); overlay.classList.remove('visible');
+                dashboardSection.classList.remove('active'); termsSection.classList.remove('active'); myfilmsSection.classList.add('active');
+            });
+            document.getElementById('sidebarTermsBtn').addEventListener('click', function(e) {
+                e.preventDefault(); sidebar.classList.remove('open'); overlay.classList.remove('visible');
+                dashboardSection.classList.remove('active'); myfilmsSection.classList.remove('active'); termsSection.classList.add('active');
+            });
+            document.getElementById('dashboardLink').addEventListener('click', function(e) {
+                e.preventDefault(); sidebar.classList.remove('open'); overlay.classList.remove('visible');
+                myfilmsSection.classList.remove('active'); termsSection.classList.remove('active'); dashboardSection.classList.add('active');
+            });
+            document.getElementById('closeMyFilmsTab').addEventListener('click', function() { myfilmsSection.classList.remove('active'); dashboardSection.classList.add('active'); });
+            document.getElementById('closeTermsTab').addEventListener('click', function() { termsSection.classList.remove('active'); dashboardSection.classList.add('active'); });
+
+            function handleLogout() {
+                localStorage.removeItem('akmark_admin_token'); localStorage.removeItem('akmark_admin');
+                window.location.href = 'admin-login.html';
+            }
+            document.getElementById('headerLogoutBtn').addEventListener('click', handleLogout);
+            document.getElementById('sidebarLogoutBtn').addEventListener('click', handleLogout);
+        });
+    </script>
+</body>
+</html>
