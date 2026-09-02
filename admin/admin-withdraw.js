@@ -106,7 +106,7 @@
     const phoneRegex = /^09\d{8}$/; // Malawi numbers start with 09 followed by 8 digits
 
     if (isNaN(amount)) { showToast({ type: 'error', title: 'Error', message: 'Please enter a valid amount.' }); return false; }
-    if (amount < 10000) { showToast({ type: 'error', title: 'Error', message: 'Minimum withdrawal is MWK 10,000.' }); return false; }
+    if (amount < 100) { showToast({ type: 'error', title: 'Error', message: 'Minimum withdrawal is MWK 100.' }); return false; }
     if (amount > 750000) { showToast({ type: 'error', title: 'Error', message: 'Maximum withdrawal is MWK 750,000.' }); return false; }
     if (!phoneRegex.test(phone)) { showToast({ type: 'error', title: 'Error', message: 'Please enter a valid phone number (e.g. 0991234567).' }); return false; }
     if (!agreeTerms.checked) { showToast({ type: 'error', title: 'Error', message: 'You must agree to the Terms & Conditions.' }); return false; }
