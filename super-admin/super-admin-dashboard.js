@@ -60,6 +60,15 @@ async function postAction(action, payload) {
     if (!res.ok) throw new Error(data.error || 'Action failed');
     return data;
 }
+// Kuchokera ku super-admin-dashboard.js
+async function collectCommissions() {
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/collect-data-api?action=collect_commissions`, {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + token }
+  });
+  const data = await res.json();
+  if (data.success) showToast('Commissions collected: MK ' + data.total_commissions);
+}
 
 // ===== TOAST =====
 function showToast(message, type = 'success') {
