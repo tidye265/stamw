@@ -3,8 +3,8 @@
 
     var TOKEN_KEY = 'akmark_token';
     var SUPABASE_URL = window.SUPABASE_URL || 'https://jnqwvmxuieeelvukhcsq.supabase.co';
-    var HOME_PAGE = 'home.html';
-    var NON_PAGE = 'non.html';
+    var HOME_PAGE = 'blocked.html';
+    var NON_PAGE = 'blocked.html';
     var BLOCKED_PAGE = 'blocked.html';
     var LOGIN_CHECKER_ENDPOINT = SUPABASE_URL + '/functions/v1/login-checker';
     var GET_CHALLENGE_ENDPOINT = SUPABASE_URL + '/functions/v1/security-api?action=get_challenge';
